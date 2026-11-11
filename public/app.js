@@ -126,3 +126,125 @@ export function switchView(targetView) {
         else btn.classList.remove('active');
     });
 }
+
+/**
+ * Module 2: Camera Engine, Dual Cam, Video & GIF
+ */
+export function calculateDualCamLayout(mode, width = 1080, height = 1080) {
+    if (mode === 'pip') {
+        const subW = Math.round(width * 0.34);
+        const subH = Math.round(height * 0.34);
+        const margin = 24;
+        return {
+            mode: 'pip',
+            main: { x: 0, y: 0, w: width, h: height },
+            sub: { x: width - subW - margin, y: height - subH - margin, w: subW, h: subH, radius: 24 }
+        };
+    }
+    if (mode === 'split') {
+        const halfH = Math.round(height / 2);
+        return {
+            mode: 'split',
+            main: { x: 0, y: 0, w: width, h: halfH },
+            sub: { x: 0, y: halfH, w: width, h: halfH, radius: 0 }
+        };
+    }
+    return {
+        mode: 'single',
+        main: { x: 0, y: 0, w: width, h: height }
+    };
+}
+
+export const CameraEngine = {
+    facingMode: 'user',
+    dualMode: 'off',
+    audioEnabled: true,
+    mainStream: null,
+    subStream: null,
+    isRecording: false,
+    mediaRecorder: null,
+    recordedChunks: [],
+
+    cycleDualMode(current = this.dualMode) {
+        if (current === 'off') return 'pip';
+        if (current === 'pip') return 'split';
+        return 'off';
+    },
+
+    toggleFacing(current = this.facingMode) {
+        return current === 'user' ? 'environment' : 'user';
+    },
+
+    async startCamera(videoElement, options = {}) {
+        if (typeof navigator === 'undefined' || !navigator.mediaDevices) return null;
+        this.facingMode = options.facingMode || this.facingMode;
+        if (this.mainStream) {
+            this.mainStream.getTracks().forEach(t => t.stop());
+        }
+
+        const constraints = {
+            video: {
+                facingMode: this.facingMode,
+                width: { ideal: 1080 },
+                height: { ideal: 1080 }
+            },
+            audio: this.audioEnabled
+        };
+
+        try {
+            this.mainStream = await navigator.mediaDevices.getUserMedia(constraints);
+            if (videoElement) {
+                videoElement.srcObject = this.mainStream;
+                await videoElement.play().catch(() => {});
+            }
+            return this.mainStream;
+        } catch (err) {
+            console.warn('Lỗi mở camera:', err);
+            // Fallback audio = false
+            if (constraints.audio) {
+                constraints.audio = false;
+                try {
+                    this.mainStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    if (videoElement) {
+                        videoElement.srcObject = this.mainStream;
+                        await videoElement.play().catch(() => {});
+                    }
+                    return this.mainStream;
+                } catch (e) {
+                    console.error('Camera fallback thất bại:', e);
+                }
+            }
+            return null;
+        }
+    },
+
+    async startSubCamera(subVideoElement) {
+        if (typeof navigator === 'undefined' || !navigator.mediaDevices) return null;
+        const subFacing = this.toggleFacing(this.facingMode);
+        try {
+            this.subStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: subFacing, width: { ideal: 480 }, height: { ideal: 480 } },
+                audio: false
+            });
+            if (subVideoElement) {
+                subVideoElement.srcObject = this.subStream;
+                await subVideoElement.play().catch(() => {});
+            }
+            return this.subStream;
+        } catch (err) {
+            console.warn('Thiết bị không hỗ trợ 2 camera đồng thời (dùng chế độ fallback):', err);
+            return null;
+        }
+    },
+
+    stopAll() {
+        if (this.mainStream) {
+            this.mainStream.getTracks().forEach(t => t.stop());
+            this.mainStream = null;
+        }
+        if (this.subStream) {
+            this.subStream.getTracks().forEach(t => t.stop());
+            this.subStream = null;
+        }
+    }
+};
