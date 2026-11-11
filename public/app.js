@@ -155,6 +155,43 @@ export function calculateDualCamLayout(mode, width = 1080, height = 1080) {
     };
 }
 
+export function computeCoverCrop(srcW, srcH, dstW, dstH) {
+    const srcAspect = srcW / srcH;
+    const dstAspect = dstW / dstH;
+    let sw, sh, sx, sy;
+
+    if (srcAspect > dstAspect) {
+        // Source is wider than destination: crop sides
+        sh = srcH;
+        sw = Math.round(srcH * dstAspect);
+        sx = Math.round((srcW - sw) / 2);
+        sy = 0;
+    } else {
+        // Source is taller than destination: crop top/bottom
+        sw = srcW;
+        sh = Math.round(srcW / dstAspect);
+        sx = 0;
+        sy = Math.round((srcH - sh) / 2);
+    }
+    return { sx, sy, sw, sh };
+}
+
+export function drawCoverImage(ctx, media, dx, dy, dw, dh, mirror = false) {
+    const srcW = media.videoWidth || media.naturalWidth || media.width || dw;
+    const srcH = media.videoHeight || media.naturalHeight || media.height || dh;
+    const crop = computeCoverCrop(srcW, srcH, dw, dh);
+
+    ctx.save();
+    if (mirror) {
+        ctx.translate(dx + dw, dy);
+        ctx.scale(-1, 1);
+        ctx.drawImage(media, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, dw, dh);
+    } else {
+        ctx.drawImage(media, crop.sx, crop.sy, crop.sw, crop.sh, dx, dy, dw, dh);
+    }
+    ctx.restore();
+}
+
 export const CameraEngine = {
     facingMode: 'user',
     dualMode: 'off',
@@ -233,8 +270,56 @@ export const CameraEngine = {
             return this.subStream;
         } catch (err) {
             console.warn('Thiết bị không hỗ trợ 2 camera đồng thời (dùng chế độ fallback):', err);
+            this.subStream = null;
             return null;
         }
+    },
+
+    async captureSequentialDualShot(videoElement, canvasElement) {
+        // 1. Capture primary frame
+        const primaryCanvas = document.createElement('canvas');
+        primaryCanvas.width = 1080;
+        primaryCanvas.height = 1080;
+        const pCtx = primaryCanvas.getContext('2d');
+        const primaryFacing = this.facingMode;
+        drawCoverImage(pCtx, videoElement, 0, 0, 1080, 1080, primaryFacing === 'user');
+
+        // 2. Flip camera to opposite facing mode rapidly
+        const oppFacing = this.toggleFacing(primaryFacing);
+        await this.startCamera(videoElement, { facingMode: oppFacing });
+        // Short delay for auto-focus/exposure
+        await new Promise(r => setTimeout(r, 450));
+
+        // 3. Capture secondary frame
+        const secondaryCanvas = document.createElement('canvas');
+        secondaryCanvas.width = 1080;
+        secondaryCanvas.height = 1080;
+        const sCtx = secondaryCanvas.getContext('2d');
+        drawCoverImage(sCtx, videoElement, 0, 0, 1080, 1080, oppFacing === 'user');
+
+        // 4. Switch back to original facing mode
+        await this.startCamera(videoElement, { facingMode: primaryFacing });
+
+        // 5. Composite both into final canvas
+        const ctx = canvasElement.getContext('2d');
+        const layout = calculateDualCamLayout(this.dualMode, 1080, 1080);
+        ctx.clearRect(0, 0, 1080, 1080);
+        ctx.drawImage(primaryCanvas, layout.main.x, layout.main.y, layout.main.w, layout.main.h);
+
+        const sub = layout.sub;
+        ctx.save();
+        ctx.beginPath();
+        if (sub.radius) {
+            ctx.roundRect(sub.x, sub.y, sub.w, sub.h, sub.radius);
+        } else {
+            ctx.rect(sub.x, sub.y, sub.w, sub.h);
+        }
+        ctx.clip();
+        ctx.drawImage(secondaryCanvas, 0, 0, 1080, 1080, sub.x, sub.y, sub.w, sub.h);
+        ctx.restore();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(sub.x, sub.y, sub.w, sub.h);
     },
 
     stopAll() {
@@ -387,9 +472,20 @@ export function initAppUi() {
     let selectedRecipients = [];
     let photoboothConfig = { layout: '2x2', timer: 3 };
     let isGifMode = false;
+    let activeFilterCss = 'none';
     let mediaRecorder = null;
     let recordedChunks = [];
     let recordTimer = null;
+    let cachedFriends = [];
+    let cachedMoments = [];
+
+    // Check Insecure Context (HTTP on LAN IP)
+    if (typeof window !== 'undefined' && window.isSecureContext === false && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        const warn = document.createElement('div');
+        warn.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#ff3b30;color:white;padding:10px 14px;font-size:12px;font-weight:700;text-align:center;z-index:9999;';
+        warn.innerHTML = `⚠️ Bạn đang dùng HTTP nên iOS chặn Camera. Vui lòng mở <a href="https://${location.hostname}:3443" style="color:#fff;text-decoration:underline;">https://${location.hostname}:3443</a> hoặc Cài Profile iOS!`;
+        document.body.appendChild(warn);
+    }
 
     // Apply saved theme
     applyTheme(StateManager.getTheme());
@@ -425,6 +521,46 @@ export function initAppUi() {
         await CameraEngine.startCamera(backVideo);
         loadFeed();
         loadFriends();
+    }
+
+    // Authenticated Fetch with automatic 401 token refresh retry
+    async function authFetch(url, options = {}) {
+        let token = await refreshTokenIfNeeded();
+        if (!token) {
+            const current = StateManager.getAuth();
+            token = current?.idToken;
+        }
+        const bodyObj = options.body ? JSON.parse(options.body) : {};
+        bodyObj.idToken = token;
+
+        let res = await fetch(url, {
+            ...options,
+            body: JSON.stringify(bodyObj)
+        });
+
+        if (res.status === 401) {
+            // Force refresh token once
+            const auth = StateManager.getAuth();
+            if (auth?.refreshToken) {
+                try {
+                    const refRes = await fetch('/api/refresh', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refreshToken: auth.refreshToken })
+                    });
+                    const refData = await refRes.json();
+                    if (refData.idToken) {
+                        StateManager.saveAuth({ ...auth, idToken: refData.idToken });
+                        bodyObj.idToken = refData.idToken;
+                        res = await fetch(url, {
+                            ...options,
+                            body: JSON.stringify(bodyObj)
+                        });
+                    }
+                } catch (_) {}
+            }
+        }
+        return res;
     }
 
     // Login handlers
@@ -487,6 +623,7 @@ export function initAppUi() {
             switchView(view);
             if (view === 'feed') loadFeed();
             if (view === 'memories') loadMemories();
+            if (view === 'messages') loadMessages();
             if (view === 'camera') {
                 if (!CameraEngine.mainStream) CameraEngine.startCamera(backVideo);
             }
@@ -566,6 +703,161 @@ export function initAppUi() {
         CameraEngine.audioEnabled = !CameraEngine.audioEnabled;
         const btn = document.getElementById('micBtn');
         if (btn) btn.innerText = CameraEngine.audioEnabled ? '🎤' : '🔇';
+    });
+
+    // FX Filters selection wiring
+    const filterMap = {
+        'none': 'none',
+        'fresh': 'contrast(1.08) saturate(1.2) brightness(1.04)',
+        'warm': 'sepia(0.2) saturate(1.25) hue-rotate(-10deg)',
+        'cold': 'saturate(0.9) hue-rotate(180deg) brightness(1.05)',
+        'golden': 'sepia(0.35) contrast(1.1) brightness(1.05)',
+        'vintage': 'sepia(0.4) contrast(0.95) saturate(1.1)',
+        'noir': 'grayscale(1) contrast(1.4) brightness(0.9)',
+        'bw': 'grayscale(1) contrast(1.1)'
+    };
+    document.querySelectorAll('[data-fx]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-fx]').forEach(b => b.classList.remove('on'));
+            btn.classList.add('on');
+            const fxKey = btn.dataset.fx;
+            activeFilterCss = filterMap[fxKey] || 'none';
+            if (backVideo) backVideo.style.filter = activeFilterCss;
+            if (shotCanvas) shotCanvas.style.filter = activeFilterCss;
+        });
+    });
+
+    // Custom Frames wiring
+    document.querySelectorAll('[data-frame]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-frame]').forEach(b => b.classList.remove('on'));
+            btn.classList.add('on');
+            const frameKey = btn.dataset.frame;
+            if (frameKey === 'none') {
+                currentCustomFrameImg = null;
+            } else {
+                // Generate SVG preset overlay
+                currentCustomFrameImg = createPresetFrame(frameKey);
+            }
+        });
+    });
+
+    function createPresetFrame(type) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1080;
+        canvas.height = 1080;
+        const ctx = canvas.getContext('2d');
+        if (type === 'polaroid') {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 1080, 1080);
+            ctx.clearRect(40, 40, 1000, 880);
+        } else if (type === 'gold') {
+            ctx.strokeStyle = '#f5b942';
+            ctx.lineWidth = 28;
+            ctx.strokeRect(14, 14, 1052, 1052);
+        } else if (type === 'film') {
+            ctx.fillStyle = '#0a0a0c';
+            ctx.fillRect(0, 0, 1080, 60);
+            ctx.fillRect(0, 1020, 1080, 60);
+            ctx.fillStyle = '#ffffff';
+            for (let x = 30; x < 1050; x += 60) {
+                ctx.fillRect(x, 15, 30, 30);
+                ctx.fillRect(x, 1035, 30, 30);
+            }
+        } else if (type === 'heart') {
+            ctx.strokeStyle = '#ff6b81';
+            ctx.lineWidth = 20;
+            ctx.strokeRect(10, 10, 1060, 1060);
+        }
+        return canvas;
+    }
+
+    // Upload custom frame PNG/SVG
+    document.getElementById('uploadCustomFrameBtn')?.addEventListener('click', () => frameFilePick?.click());
+    frameFilePick?.addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const img = new Image();
+        img.onload = () => {
+            currentCustomFrameImg = img;
+            alert('Đã tải lên khung viền cá nhân thành công!');
+            closeSheets();
+        };
+        img.src = URL.createObjectURL(file);
+    });
+
+    // Audience options wiring
+    document.querySelectorAll('[data-audience]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-audience]').forEach(b => b.classList.remove('on'));
+            btn.classList.add('on');
+            selectedAudience = btn.dataset.audience;
+            const checkList = document.getElementById('friendCheckList');
+            const audienceBtn = document.getElementById('audienceBtn');
+            if (selectedAudience === 'selected') {
+                checkList?.classList.remove('hidden');
+                if (audienceBtn) audienceBtn.innerText = `⭐ Chọn bạn thân`;
+            } else if (selectedAudience === 'private') {
+                checkList?.classList.add('hidden');
+                if (audienceBtn) audienceBtn.innerText = `🔒 Chỉ mình tôi`;
+            } else {
+                checkList?.classList.add('hidden');
+                if (audienceBtn) audienceBtn.innerText = `👥 Tất cả bạn bè`;
+            }
+        });
+    });
+
+    // Friend checklist listener
+    document.getElementById('friendCheckList')?.addEventListener('change', (e) => {
+        const checked = Array.from(document.querySelectorAll('#friendCheckList input:checked')).map(i => i.value);
+        selectedRecipients = checked;
+        const audienceBtn = document.getElementById('audienceBtn');
+        if (audienceBtn && selectedAudience === 'selected') {
+            audienceBtn.innerText = `⭐ ${checked.length} người bạn`;
+        }
+    });
+
+    // Caption Presets wiring
+    document.querySelectorAll('[data-preset]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            document.querySelectorAll('[data-preset]').forEach(b => b.classList.remove('on'));
+            btn.classList.add('on');
+            currentOverlayType = btn.dataset.preset;
+            if (currentOverlayType === 'time') {
+                const nowStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                if (captionInput) captionInput.value = `${nowStr}`;
+            } else if (currentOverlayType === 'music') {
+                if (captionInput) captionInput.value = `Đang nghe bài hát yêu thích`;
+            } else if (currentOverlayType === 'place') {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(async (pos) => {
+                        try {
+                            const pRes = await fetch(`/api/place?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
+                            const pData = await pRes.json();
+                            if (pData.label && captionInput) {
+                                captionInput.value = pData.label;
+                            }
+                        } catch (_) {}
+                    }, () => {});
+                }
+            }
+        });
+    });
+
+    // Download Button
+    document.getElementById('downloadBtn')?.addEventListener('click', () => {
+        if (!currentCapturedData.imageBase64 && !currentCapturedData.videoBase64) return;
+        const a = document.createElement('a');
+        if (currentCapturedData.imageBase64) {
+            a.href = currentCapturedData.imageBase64;
+            a.download = `locket_vip_${Date.now()}.webp`;
+        } else if (currentCapturedData.videoBase64) {
+            a.href = currentCapturedData.videoBase64;
+            a.download = `locket_vip_${Date.now()}.mp4`;
+        }
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     });
 
     // Themes selector
@@ -684,40 +976,36 @@ export function initAppUi() {
         shotCanvas.width = 1080;
         shotCanvas.height = 1080;
 
-        const layout = calculateDualCamLayout(CameraEngine.dualMode, 1080, 1080);
-        // Draw main camera
-        ctx.save();
-        if (CameraEngine.facingMode === 'user') {
-            ctx.translate(layout.main.w, 0);
-            ctx.scale(-1, 1);
-        }
-        ctx.drawImage(backVideo, 0, 0, layout.main.w, layout.main.h);
-        ctx.restore();
+        // Apply active filter
+        ctx.filter = activeFilterCss;
 
-        // Draw sub camera if dual mode active
-        if (CameraEngine.dualMode !== 'off' && frontVideo && !frontVideo.classList.contains('hidden')) {
-            const sub = layout.sub;
-            ctx.save();
-            ctx.beginPath();
-            ctx.rect(sub.x, sub.y, sub.w, sub.h);
-            ctx.clip();
-            if (CameraEngine.facingMode !== 'user') {
-                ctx.translate(sub.x + sub.w, sub.y);
-                ctx.scale(-1, 1);
-                ctx.drawImage(frontVideo, 0, 0, sub.w, sub.h);
-            } else {
-                ctx.drawImage(frontVideo, sub.x, sub.y, sub.w, sub.h);
+        // If Dual Cam active but second stream is null, use sequential dual fallback!
+        if (CameraEngine.dualMode !== 'off' && (!CameraEngine.subStream || !frontVideo)) {
+            await CameraEngine.captureSequentialDualShot(backVideo, shotCanvas);
+        } else {
+            const layout = calculateDualCamLayout(CameraEngine.dualMode, 1080, 1080);
+            drawCoverImage(ctx, backVideo, 0, 0, layout.main.w, layout.main.h, CameraEngine.facingMode === 'user');
+
+            if (CameraEngine.dualMode !== 'off' && frontVideo && !frontVideo.classList.contains('hidden')) {
+                const sub = layout.sub;
+                ctx.save();
+                ctx.beginPath();
+                if (sub.radius) ctx.roundRect(sub.x, sub.y, sub.w, sub.h, sub.radius);
+                else ctx.rect(sub.x, sub.y, sub.w, sub.h);
+                ctx.clip();
+                drawCoverImage(ctx, frontVideo, sub.x, sub.y, sub.w, sub.h, CameraEngine.facingMode !== 'user');
+                ctx.restore();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(sub.x, sub.y, sub.w, sub.h);
             }
-            ctx.restore();
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 4;
-            ctx.strokeRect(sub.x, sub.y, sub.w, sub.h);
         }
 
         // Draw custom frame if active
         if (currentCustomFrameImg) {
             ctx.drawImage(currentCustomFrameImg, 0, 0, 1080, 1080);
         }
+        ctx.filter = 'none';
 
         currentCapturedData.imageBase64 = shotCanvas.toDataURL('image/webp', 0.92);
 
@@ -746,19 +1034,19 @@ export function initAppUi() {
             }
             if (countdownIndicator) countdownIndicator.classList.add('hidden');
 
-            // Draw captured frame into cell
+            // Draw captured frame into cell with object-fit: cover preservation!
             ctx.save();
             ctx.beginPath();
             ctx.roundRect(cell.x, cell.y, cell.w, cell.h, cell.radius || 18);
             ctx.clip();
-            if (CameraEngine.facingMode === 'user') {
-                ctx.translate(cell.x + cell.w, cell.y);
-                ctx.scale(-1, 1);
-                ctx.drawImage(backVideo, 0, 0, cell.w, cell.h);
-            } else {
-                ctx.drawImage(backVideo, cell.x, cell.y, cell.w, cell.h);
-            }
+            ctx.filter = activeFilterCss;
+            drawCoverImage(ctx, backVideo, cell.x, cell.y, cell.w, cell.h, CameraEngine.facingMode === 'user');
             ctx.restore();
+        }
+
+        // Draw custom frame if active
+        if (currentCustomFrameImg) {
+            ctx.drawImage(currentCustomFrameImg, 0, 0, 1080, 1080);
         }
 
         currentCapturedData.imageBase64 = shotCanvas.toDataURL('image/webp', 0.92);
@@ -824,10 +1112,7 @@ export function initAppUi() {
                 const ctx = shotCanvas.getContext('2d');
                 shotCanvas.width = 1080;
                 shotCanvas.height = 1080;
-                const size = Math.min(img.width, img.height);
-                const sx = (img.width - size) / 2;
-                const sy = (img.height - size) / 2;
-                ctx.drawImage(img, sx, sy, size, size, 0, 0, 1080, 1080);
+                drawCoverImage(ctx, img, 0, 0, 1080, 1080, false);
                 currentCapturedData.imageBase64 = shotCanvas.toDataURL('image/webp', 0.92);
                 showShotPreview();
             };
@@ -846,9 +1131,8 @@ export function initAppUi() {
         sendBtn.innerText = '⏳ Đang đăng lên Locket...';
         sendBtn.disabled = true;
 
-        const idToken = await refreshTokenIfNeeded();
         const payload = buildMomentPayload({
-            idToken: idToken || user.idToken,
+            idToken: user.idToken,
             localId: user.localId,
             imageBase64: currentCapturedData.imageBase64,
             videoBase64: currentCapturedData.videoBase64,
@@ -862,7 +1146,7 @@ export function initAppUi() {
         });
 
         try {
-            const res = await fetch('/api/post-moment', {
+            const res = await authFetch('/api/post-moment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -890,14 +1174,14 @@ export function initAppUi() {
         if (!feedList || !user) return;
 
         try {
-            const idToken = await refreshTokenIfNeeded();
-            const res = await fetch('/api/feed', {
+            const res = await authFetch('/api/feed', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken: idToken || user.idToken })
+                body: JSON.stringify({ idToken: user.idToken })
             });
             const data = await res.json();
             const moments = data.result?.moments || data.moments || [];
+            cachedMoments = moments;
             if (!moments.length) {
                 feedList.innerHTML = '<p class="hint">Chưa có khoảnh khắc mới nào từ bạn bè.</p>';
                 return;
@@ -937,7 +1221,7 @@ export function initAppUi() {
                     const momentUid = card?.dataset.uid;
                     const emoji = btn.dataset.react;
                     if (!momentUid) return;
-                    await fetch('/api/react', {
+                    await authFetch('/api/react', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(buildReactionPayload(user.idToken, momentUid, emoji))
@@ -955,16 +1239,16 @@ export function initAppUi() {
         const user = StateManager.getAuth();
         if (!user) return;
         try {
-            const idToken = await refreshTokenIfNeeded();
-            const res = await fetch('/api/friends', {
+            const res = await authFetch('/api/friends', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idToken: idToken || user.idToken, localId: user.localId })
+                body: JSON.stringify({ idToken: user.idToken, localId: user.localId })
             });
             const data = await res.json();
             const friends = data.friends || [];
+            cachedFriends = friends;
             const audienceBtn = document.getElementById('audienceBtn');
-            if (audienceBtn) audienceBtn.innerText = `👥 ${friends.length} bạn bè`;
+            if (audienceBtn && selectedAudience === 'all') audienceBtn.innerText = `👥 ${friends.length} bạn bè`;
             const totalFriends = document.getElementById('totalFriends');
             if (totalFriends) totalFriends.innerText = friends.length;
 
@@ -981,17 +1265,58 @@ export function initAppUi() {
         } catch (_) {}
     }
 
+    async function loadMessages() {
+        const messagesList = document.getElementById('messagesList');
+        if (!messagesList) return;
+        if (!cachedFriends.length) await loadFriends();
+
+        if (!cachedFriends.length) {
+            messagesList.innerHTML = '<p class="hint">Chưa có bạn bè nào để nhắn tin.</p>';
+            return;
+        }
+
+        messagesList.innerHTML = cachedFriends.map(f => `
+            <div class="person" style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <img class="avatar" src="/icon.svg" alt="">
+                    <div>
+                        <div style="font-weight:700;font-size:14px;">${f.uid}</div>
+                        <div class="fine" style="text-align:left;margin-top:2px;">Bạn bè Locket</div>
+                    </div>
+                </div>
+                <button class="choice on sendDirectBtn" data-friend-uid="${f.uid}" type="button" style="padding:6px 14px;font-size:12px;">Gửi Locket</button>
+            </div>
+        `).join('');
+
+        messagesList.querySelectorAll('.sendDirectBtn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const uid = btn.dataset.friendUid;
+                selectedAudience = 'selected';
+                selectedRecipients = [uid];
+                const audienceBtn = document.getElementById('audienceBtn');
+                if (audienceBtn) audienceBtn.innerText = `⭐ Gửi riêng`;
+                switchView('camera');
+            });
+        });
+    }
+
     async function loadMemories() {
         const streakCount = document.getElementById('streakCount');
+        const totalLocketsEl = document.getElementById('totalLockets');
         const calGrid = document.getElementById('calendarGrid');
-        if (streakCount) streakCount.innerText = '3 Ngày';
+
+        const summary = computeMemoriesSummary(cachedMoments, cachedFriends);
+        if (streakCount) streakCount.innerText = `${summary.streak} Ngày`;
+        if (totalLocketsEl) totalLocketsEl.innerText = `${summary.totalLockets}`;
+
         if (calGrid) {
             calGrid.innerHTML = Array.from({ length: 28 }).map((_, i) => {
                 const day = i + 1;
-                const active = day % 3 === 0;
+                const active = day <= summary.streak;
                 return `<div class="cal-day ${active ? 'active' : ''}">${day}</div>`;
             }).join('');
         }
     }
 }
+
 

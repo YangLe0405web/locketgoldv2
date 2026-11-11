@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node tests/test-e2e-suite.js"
+    "test": "node tests/test-server-ssl.js && node tests/test-dom-structure.js && node tests/test-app-auth.js && node tests/test-camera-engine.js && node tests/test-photobooth-compositor.js && node tests/test-feed-memories.js && node tests/test-fix-pass.js && node tests/test-e2e-suite.js"
   },
   "dependencies": {
     "axios": "^1.6.8",

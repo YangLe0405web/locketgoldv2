@@ -405,7 +405,10 @@ async function ensureCertificates(lanIp) {
         days: 365,
         keySize: 2048,
         algorithm: 'sha256',
-        extensions: [{ name: 'subjectAltName', altNames }]
+        extensions: [
+            { name: 'basicConstraints', cA: true },
+            { name: 'subjectAltName', altNames }
+        ]
     });
 
     fs.writeFileSync(crtPath, pems.cert, 'utf8');
