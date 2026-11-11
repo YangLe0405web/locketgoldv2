@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Locket VIP Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen flex flex-col items-center p-4 select-none">
+
+    <!-- Thanh tiêu đề & Nút tải cấu hình iOS (.mobileconfig) -->
+    <div class="w-full max-w-md flex justify-between items-center mb-3">
+        <div>
+            <h1 class="text-lg font-extrabold text-yellow-400">⚡ LOCKET VIP</h1>
+            <p id="userStatus" class="text-[11px] text-zinc-400">Chưa kết nối tài khoản</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="/install.mobileconfig" class="bg-yellow-400/15 hover:bg-yellow-400/25 text-xs px-3 py-2 rounded-xl border border-yellow-400/40 text-yellow-300 font-semibold">
+                📲 Cài Profile iOS
+            </a>
+            <button onclick="logout()" id="logoutBtn" class="hidden bg-zinc-800 text-xs px-2.5 py-2 rounded-xl text-red-400 font-semibold">Đổi acc</button>
+        </div>
+    </div>
+
+    <!-- Khung Kết nối tài khoản (Hỗ trợ dán thẳng JSON từ tab Response) -->
+    <div id="loginBox" class="w-full max-w-md bg-zinc-900 p-4 rounded-2xl mb-4 border border-zinc-800 shadow-lg">
+        <p class="text-xs font-bold text-yellow-400 mb-1">Cách 1: Dán dữ liệu từ thẻ Response (Nhanh nhất</p>
+        <p class="text-[11px] text-zinc-400 mb-2">Copy toàn bộ đoạn <code class="text-green-400">{ "user": { ... } }</code> trong tab Response của mục login rồi dán vào đây:</p>
+        <textarea id="jsonInput" rows="4" placeholder='{"user": {"localId": "...", "idToken": "...", "refreshToken": "..."}}' class="w-full p-2.5 mb-2.5 rounded-xl bg-zinc-800 text-xs outline-none font-mono text-green-400 border border-zinc-700"></textarea>
+        <button onclick="loginWithJson()" class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-extrabold py-2.5 rounded-xl text-xs mb-3">
+            ⚡ Kích hoạt tài khoản bằng JSON
+        </button>
+
+        <details class="text-xs text-zinc-400 border-t border-zinc-800 pt-2">
+            <summary class="cursor-pointer font-semibold">Cách 2: Đăng nhập Email/Mật khẩu (Cần LOCKET_API_KEY)</summary>
+            <input id="email" type="email" placeholder="Email đăng ký Locket" class="w-full p-2.5 mt-2 mb-2 rounded-xl bg-zinc-800 text-xs outline-none text-white">
+            <input id="password" type="password" placeholder="Mật khẩu" class="w-full p-2.5 mb-2 rounded-xl bg-zinc-800 text-xs outline-none text-white">
+            <button onclick="login()" id="loginBtn" class="w-full bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-2 rounded-xl text-xs">Đăng nhập</button>
+        </details>
+    </div>
+
+    <!-- Bảng điều khiển Studio Chụp Photobooth & Filter -->
+    <div class="w-full max-w-md bg-zinc-900 p-4 rounded-3xl border border-zinc-800 flex flex-col items-center shadow-xl">
+
+        <!-- Khung Camera tỉ lệ vuông 1:1 chuẩn Locket -->
+        <div class="relative w-72 h-72 sm:w-80 sm:h-80 rounded-[36px] overflow-hidden bg-black border-2 border-yellow-400/60 mb-3 shadow-inner">
+            <video id="video" autoplay playsinline muted class="w-full h-full object-cover scale-x-[-1]"></video>
+            <canvas id="canvas" width="1080" height="1080" class="w-full h-full object-cover hidden"></canvas>
+            <div id="countdown" class="absolute inset-0 flex items-center justify-center text-6xl font-black text-yellow-400 hidden bg-black/50 backdrop-blur-sm"></div>
+
+            <!-- Nút đảo Camera Trước / Sau -->
+            <button onclick="switchCamera()" class="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md p-2.5 rounded-full text-sm border border-white/20">
+                🔄
+            </button>
+        </div>
+
+        <!-- Bộ chọn Filter Màu/AI & Màu khung Photobooth -->
+        <div class="grid grid-cols-2 gap-2 w-full mb-3">
+            <div>
+                <label class="text-[11px] text-zinc-400">Filter Màu & AI:</label>
+                <select id="filterSelect" onchange="applyLiveFilter()" class="w-full mt-1 p-2 rounded-xl bg-zinc-800 text-xs outline-none">
+                    <option value="none">Mặc định (Gốc)</option>
+                    <option value="contrast(1.15) saturate(1.35) sepia(0.18)">🎞️ Film Kodak Ấm</option>
+                    <option value="brightness(1.08) contrast(1.05) saturate(1.4) hue-rotate(-8deg)">🌸 Hồng Đào Glow</option>
+                    <option value="grayscale(1) contrast(1.35)">🖤 Đen Trắng Retro</option>
+                    <option value="contrast(1.4) saturate(1.8) brightness(1.05)">🤖 AI Anime Vivid</option>
+                    <option value="contrast(1.25) saturate(0.8) hue-rotate(15deg)">❄️ Cyber Lạnh</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[11px] text-zinc-400">Khung & Nhãn Photobooth:</label>
+                <div class="flex gap-1.5 mt-1">
+                    <input type="color" id="frameColor" value="#18181b" class="w-9 h-8 rounded-lg bg-zinc-800 p-0.5 cursor-pointer">
+                    <select id="stickerSelect" class="w-full p-2 rounded-xl bg-zinc-800 text-xs outline-none">
+                        <option value="✨ LOCKET VIP ✨">✨ Locket VIP</option>
+                        <option value="💖 BESTIES FOREVER 💖">💖 Besties</option>
+                        <option value="🐾 CUTE OVERLOAD 🐾">🐾 Cute</option>
+                        <option value="🔥 GOOD VIBES ONLY 🔥">🔥 Good Vibes</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cụm nút Chụp đơn / Photobooth 4 tấm / Chọn ảnh từ máy -->
+        <div class="grid grid-cols-3 gap-2 w-full mb-4">
+            <button onclick="captureSingle()" class="bg-zinc-800 hover:bg-zinc-700 py-2.5 rounded-xl text-xs font-semibold">📸 Chụp 1 tấm</button>
+            <button onclick="startPhotobooth()" class="bg-yellow-400 hover:bg-yellow-300 text-black py-2.5 rounded-xl text-xs font-extrabold">🎞️ Photobooth 4x</button>
+            <label class="bg-zinc-800 hover:bg-zinc-700 py-2.5 rounded-xl text-xs font-semibold text-center cursor-pointer">
+                📁 Chọn ảnh
+                <input type="file" accept="image/*" onchange="uploadFromGallery(event)" class="hidden">
+            </label>
+        </div>
+
+        <!-- Tuỳ chỉnh Caption Gradient VIP -->
+        <div class="w-full border-t border-zinc-800 pt-3">
+            <div class="flex gap-2 mb-2">
+                <select id="overlayType" class="w-1/3 p-2 rounded-xl bg-zinc-800 text-xs outline-none">
+                    <option value="standard">💬 Chữ thường</option>
+                    <option value="time">🕒 Kèm Giờ</option>
+                    <option value="music">🎵 Kèm Nhạc</option>
+                </select>
+                <input id="caption" type="text" placeholder="Nhập caption hoặc tên bài hát..." class="w-2/3 p-2 rounded-xl bg-zinc-800 text-xs outline-none">
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] text-zinc-400 mb-3">
+                <span>Màu nền Gradient & Màu chữ:</span>
+                <div class="flex items-center gap-1.5">
+                    <input type="color" id="bgStart" value="#FF512F" title="Màu đầu">
+                    <input type="color" id="bgEnd" value="#DD2476" title="Màu cuối">
+                    <input type="color" id="textColor" value="#FFFFFF" title="Màu chữ">
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="resetCamera()" class="w-1/3 bg-zinc-800 py-3 rounded-xl text-xs font-semibold">🔄 Chụp lại</button>
+                <button onclick="sendToLocket()" id="sendBtn" class="w-2/3 bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-extrabold py-3 rounded-xl text-xs shadow-lg">
+                    🚀 Bắn lên Widget Locket
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            let currentStream = null;
+            let useFrontCamera = true;
+            let hasCaptured = false;
+            let authData = JSON.parse(localStorage.getItem('locket_auth') || 'null');
+
+            function updateAuthUI() {
+              if (authData && authData.idToken) {
+                document.getElementById('loginBox').classList.add('hidden');
+                document.getElementById('logoutBtn').classList.remove('hidden');
+                document.getElementById('userStatus').innerText = `Đã kết nối: ${authData.displayName || authData.email || 'Locket VIP'}`;
+              } else {
+                document.getElementById('loginBox').classList.remove('hidden');
+                document.getElementById('logoutBtn').classList.add('hidden');
+                document.getElementById('userStatus').innerText = 'Chưa kết nối tài khoản';
+              }
+            }
+            updateAuthUI();
+
+            // Đăng nhập trực tiếp bằng khối JSON copy từ tab Response
+            function loginWithJson() {
+              const rawText = document.getElementById('jsonInput').value.trim();
+              if (!rawText) return alert('Bạn chưa dán dữ liệu JSON từ tab Response!');
+              try {
+                const parsed = JSON.parse(rawText);
+                const u = parsed.user || parsed;
+                if (!u.idToken || !u.localId) {
+                  return alert('Đoạn JSON bị thiếu idToken hoặc localId. Hãy nhấn Ctrl+A và Ctrl+C copy toàn bộ khung Response!');
+                }
+                authData = {
+                  idToken: u.idToken,
+                  refreshToken: u.refreshToken || "",
+                  localId: u.localId,
+                  email: u.email || "",
+                  displayName: u.displayName || u.email || "Yang Lee"
+                };
+                localStorage.setItem('locket_auth', JSON.stringify(authData));
+                updateAuthUI();
+                alert('🎉 Đã kết nối thành công tài khoản: ' + authData.displayName);
+              } catch (err) {
+                alert('Định dạng JSON chưa đúng! Hãy chắc chắn bạn đã copy từ dấu ngoặc nhọn đầu tiên { đến dấu } cuối cùng.');
+              }
+            }
+
+            // Khởi tạo Camera
+            async function initCamera() {
+              if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+              }
+              try {
+                currentStream = await navigator.mediaDevices.getUserMedia({
+                  video: { facingMode: useFrontCamera ? 'user' : 'environment', width: { ideal: 1080 }, height: { ideal: 1080 } },
+                  audio: false
+                });
+                video.srcObject = currentStream;
+                video.classList.toggle('scale-x-[-1]', useFrontCamera);
+              } catch (err) {
+                console.warn('Lưu ý Camera:', err);
+              }
+            }
+            initCamera();
+
+            function switchCamera() {
+              useFrontCamera = !useFrontCamera;
+              initCamera();
+            }
+
+            function applyLiveFilter() {
+              video.style.filter = document.getElementById('filterSelect').value;
+            }
+
+            // Cắt ảnh vuông 1:1 chính giữa và chống lật ngược chữ khi dùng Camera trước
+            function drawVideoSquare(targetX, targetY, targetW, targetH) {
+              const vw = video.videoWidth || 1080;
+              const vh = video.videoHeight || 1080;
+              const size = Math.min(vw, vh);
+              const sx = (vw - size) / 2;
+              const sy = (vh - size) / 2;
+
+              ctx.save();
+              ctx.filter = document.getElementById('filterSelect').value;
+              if (useFrontCamera) {
+                ctx.translate(targetX + targetW, targetY);
+                ctx.scale(-1, 1);
+                ctx.drawImage(video, sx, sy, size, size, 0, 0, targetW, targetH);
+              } else {
+                ctx.drawImage(video, sx, sy, size, size, targetX, targetY, targetW, targetH);
+              }
+              ctx.restore();
+            }
+
+            function captureSingle() {
+              drawVideoSquare(0, 0, 1080, 1080);
+              hasCaptured = true;
+              video.classList.add('hidden');
+              canvas.classList.remove('hidden');
+            }
+
+            // Chụp Photobooth 4 tấm liên tiếp ghép lưới 2x2
+            async function startPhotobooth() {
+              const countEl = document.getElementById('countdown');
+              const frameColor = document.getElementById('frameColor').value;
+              const stickerText = document.getElementById('stickerSelect').value;
+
+              video.classList.remove('hidden');
+              canvas.classList.add('hidden');
+
+              ctx.save();
+              ctx.fillStyle = frameColor;
+              ctx.fillRect(0, 0, 1080, 1080);
+              ctx.restore();
+
+              const slots = [
+                { x: 45, y: 45, w: 470, h: 450 },
+                { x: 565, y: 45, w: 470, h: 450 },
+                { x: 45, y: 515, w: 470, h: 450 },
+                { x: 565, y: 515, w: 470, h: 450 }
+              ];
+
+              for (let i = 0; i < 4; i++) {
+                countEl.classList.remove('hidden');
+                for (let c = 3; c > 0; c--) {
+                  countEl.innerText = c;
+                  await new Promise(r => setTimeout(r, 750));
+                }
+                countEl.innerText = "📸";
+                drawVideoSquare(slots[i].x, slots[i].y, slots[i].w, slots[i].h);
+                await new Promise(r => setTimeout(r, 350));
+              }
+
+              // In nhãn Sticker và ngày tháng dưới chân khung Photobooth
+              ctx.save();
+              ctx.fillStyle = '#FFFFFF';
+              ctx.font = 'bold 30px sans-serif';
+              ctx.textAlign = 'center';
+              const dateStr = new Date().toLocaleDateString('vi-VN');
+              ctx.fillText(`${stickerText}  •  ${dateStr}`, 540, 1030);
+              ctx.restore();
+
+              hasCaptured = true;
+              countEl.classList.add('hidden');
+              video.classList.add('hidden');
+              canvas.classList.remove('hidden');
+            }
+
+            // Chọn ảnh có sẵn từ máy
+            function uploadFromGallery(e) {
+              const file = e.target.files[0];
+              if (!file) return;
+              const img = new Image();
+              img.onload = () => {
+                const size = Math.min(img.width, img.height);
+                const sx = (img.width - size) / 2;
+                const sy = (img.height - size) / 2;
+                ctx.save();
+                ctx.filter = document.getElementById('filterSelect').value;
+                ctx.drawImage(img, sx, sy, size, size, 0, 0, 1080, 1080);
+                ctx.restore();
+                hasCaptured = true;
+                video.classList.add('hidden');
+                canvas.classList.remove('hidden');
+              };
+              img.src = URL.createObjectURL(file);
+            }
+
+            function resetCamera() {
+              hasCaptured = false;
+              canvas.classList.add('hidden');
+              video.classList.remove('hidden');
+            }
+
+            async function login() {
+              const email = document.getElementById('email').value.trim();
+              const password = document.getElementById('password').value;
+              if (!email || !password) return alert('Vui lòng nhập đủ Email và Mật khẩu');
+
+              const btn = document.getElementById('loginBtn');
+              btn.innerText = 'Đang xác thực...';
+              const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+              });
+              const data = await res.json();
+              btn.innerText = 'Đăng nhập';
+
+              if (data.idToken) {
+                authData = data;
+                localStorage.setItem('locket_auth', JSON.stringify(data));
+                updateAuthUI();
+              } else {
+                alert('Lỗi: ' + data.error);
+              }
+            }
+
+            function logout() {
+              localStorage.removeItem('locket_auth');
+              authData = null;
+              updateAuthUI();
+            }
+
+            async function sendToLocket() {
+              if (!authData) return alert('Bạn cần dán JSON kích hoạt tài khoản trước!');
+              if (!hasCaptured) captureSingle();
+
+              const btn = document.getElementById('sendBtn');
+              btn.innerText = '⏳ Đang bắn lên Locket...';
+              btn.disabled = true;
+
+              // Thử gia hạn token nếu server có cấu hình LOCKET_API_KEY
+              if (authData.refreshToken) {
+                try {
+                  const refRes = await fetch('/api/refresh', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refreshToken: authData.refreshToken })
+                  });
+                  if (refRes.ok) {
+                    const refData = await refRes.json();
+                    if (refData.idToken) {
+                      authData.idToken = refData.idToken;
+                      authData.refreshToken = refData.refreshToken;
+                      localStorage.setItem('locket_auth', JSON.stringify(authData));
+                    }
+                  }
+                } catch (e) {}
+              }
+
+              const imageBase64 = canvas.toDataURL('image/webp', 0.92);
+              const res = await fetch('/api/post-moment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  idToken: authData.idToken,
+                  localId: authData.localId,
+                  imageBase64,
+                  overlayType: document.getElementById('overlayType').value,
+                  caption: document.getElementById('caption').value,
+                  bgColorStart: document.getElementById('bgStart').value,
+                  bgColorEnd: document.getElementById('bgEnd').value,
+                  textColor: document.getElementById('textColor').value
+                })
+              });
+
+              const data = await res.json();
+              btn.innerText = '🚀 Bắn lên Widget Locket';
+              btn.disabled = false;
+
+              if (data.success) {
+                alert('🎉 Đã bắn ảnh lên Widget Locket thành công!');
+                resetCamera();
+              } else {
+                alert('Lỗi khi đăng ảnh: ' + JSON.stringify(data.error));
+              }
+            }
+    </script>
+</body>
+</html>
