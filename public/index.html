@@ -2,11 +2,35 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <!-- Kích hoạt chế độ App Full màn hình trên iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Locket VIP Dashboard</title>
+    <meta name="apple-mobile-web-app-title" content="Locket VIP">
+
+    <!-- Icon hiển thị ngoài màn hình chính (Bạn có thể thay link ảnh icon của bạn vào đây) -->
+    <link rel="apple-touch-icon" href="https://i.imgur.com/3Z615Vw.png">
+
+    <title>Locket VIP Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Khóa cuộn trang web để app có cảm giác tĩnh và mượt như app native */
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Hỗ trợ tràn viền cho các dòng iPhone đời mới có tai thỏ/dynamic island */
+        body {
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
 </head>
 <body class="bg-zinc-950 text-white min-h-screen flex flex-col items-center p-4 select-none">
 
