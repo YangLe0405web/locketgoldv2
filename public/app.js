@@ -248,3 +248,69 @@ export const CameraEngine = {
         }
     }
 };
+
+/**
+ * Module 3: Photobooth Compositor, Overlays & Moment Dispatcher
+ */
+export function computePhotoboothGrid(layoutKey = '2x2', totalWidth = 1080, totalHeight = 1080, gap = 16, padding = 20) {
+    let cols = 2;
+    let rows = 2;
+
+    switch (layoutKey) {
+        case '1x2': cols = 1; rows = 2; break;
+        case '1x3': cols = 1; rows = 3; break;
+        case '1x4': cols = 1; rows = 4; break;
+        case '2x2': cols = 2; rows = 2; break;
+        case '2x3': cols = 2; rows = 3; break;
+        case '3x3': cols = 3; rows = 3; break;
+        default:    cols = 2; rows = 2; break;
+    }
+
+    const availW = totalWidth - (padding * 2) - (gap * (cols - 1));
+    const availH = totalHeight - (padding * 2) - (gap * (rows - 1));
+    const cellW = Math.floor(availW / cols);
+    const cellH = Math.floor(availH / rows);
+
+    const cells = [];
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const x = padding + c * (cellW + gap);
+            const y = padding + r * (cellH + gap);
+            cells.push({ col: c, row: r, x, y, w: cellW, h: cellH, radius: 18 });
+        }
+    }
+
+    return { layoutKey, cols, rows, cells, totalWidth, totalHeight, padding, gap };
+}
+
+export function buildMomentPayload(options = {}) {
+    const {
+        idToken = '',
+        localId = '',
+        imageBase64 = null,
+        videoBase64 = null,
+        caption = '',
+        overlayType = 'standard',
+        bgColorStart = '#ff9a9e',
+        bgColorEnd = '#fecfef',
+        textColor = '#ffffff',
+        audience = 'all',
+        recipients = [],
+        place = ''
+    } = options;
+
+    return {
+        idToken,
+        localId,
+        imageBase64,
+        videoBase64,
+        caption,
+        overlayType,
+        bgColorStart,
+        bgColorEnd,
+        textColor,
+        place,
+        audience,
+        recipients: audience === 'selected' ? recipients : []
+    };
+}
