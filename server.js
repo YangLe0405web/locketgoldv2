@@ -424,20 +424,14 @@ function pemToBase64(pem) {
     return pem.replace(/-----[^\n]+-----/g, '').replace(/\s+/g, '');
 }
 
-function generateMobileConfigXml({ lanIp, port = 3443, certPem }) {
+function generateMobileConfigXml({ lanIp, port = 3443, includeRootCa = false, certPem }) {
     const appUrl = `https://${lanIp}:${port}`;
     const profileUuid = uuidv4().toUpperCase();
     const webclipUuid = uuidv4().toUpperCase();
     const rootCertUuid = uuidv4().toUpperCase();
-    const certData = pemToBase64(certPem);
+    const certData = certPem ? pemToBase64(certPem) : '';
 
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>PayloadContent</key>
-  <array>
-    <dict>
+    const webClipDict = `    <dict>
       <key>FullScreen</key>
       <true/>
       <key>IgnoreManifestScope</key>
@@ -462,8 +456,9 @@ function generateMobileConfigXml({ lanIp, port = 3443, certPem }) {
       <true/>
       <key>URL</key>
       <string>${appUrl}</string>
-    </dict>
-    <dict>
+    </dict>`;
+
+    const rootCertDict = `    <dict>
       <key>PayloadCertificateFileName</key>
       <string>LocketVIPRoot.crt</string>
       <key>PayloadContent</key>
@@ -480,10 +475,20 @@ function generateMobileConfigXml({ lanIp, port = 3443, certPem }) {
       <string>${rootCertUuid}</string>
       <key>PayloadVersion</key>
       <integer>1</integer>
-    </dict>
+    </dict>`;
+
+    const payloadContent = includeRootCa && certData ? `${webClipDict}\n${rootCertDict}` : webClipDict;
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+${payloadContent}
   </array>
   <key>PayloadDescription</key>
-  <string>Cai Locket VIP len man hinh chinh va tin cay chung chi HTTPS camera.</string>
+  <string>Cai Locket VIP len man hinh chinh iPhone.</string>
   <key>PayloadDisplayName</key>
   <string>Locket VIP Configuration</string>
   <key>PayloadIdentifier</key>
@@ -502,11 +507,24 @@ function generateMobileConfigXml({ lanIp, port = 3443, certPem }) {
 </plist>`;
 }
 
+app.get('/ca.crt', async (req, res) => {
+    try {
+        const lanIp = getLanIp();
+        const certs = await ensureCertificates(lanIp);
+        res.setHeader('Content-Type', 'application/x-x509-ca-cert');
+        res.setHeader('Content-Disposition', 'attachment; filename="LocketVIPRoot.crt"');
+        res.send(certs.cert);
+    } catch (err) {
+        res.status(500).send('Lỗi tải chứng chỉ: ' + err.message);
+    }
+});
+
 app.get('/install.mobileconfig', async (req, res) => {
     try {
         const lanIp = getLanIp();
         const certs = await ensureCertificates(lanIp);
-        const xml = generateMobileConfigXml({ lanIp, port: HTTPS_PORT, certPem: certs.cert });
+        const includeRoot = req.query.root === '1';
+        const xml = generateMobileConfigXml({ lanIp, port: HTTPS_PORT, includeRootCa: includeRoot, certPem: certs.cert });
         res.setHeader('Content-Type', 'application/x-apple-aspen-config');
         res.setHeader('Content-Disposition', 'attachment; filename="LocketVIP.mobileconfig"');
         res.send(xml);

@@ -24,7 +24,7 @@ async function runTests() {
     console.log('✓ Certificates generated and verified on disk');
 
     // Test 3: MobileConfig XML generation with Root CA & WebClip
-    const xml = generateMobileConfigXml({ lanIp, port: 3443, certPem: certFiles.cert });
+    const xml = generateMobileConfigXml({ lanIp, port: 3443, includeRootCa: true, certPem: certFiles.cert });
     assert(xml.includes('com.apple.webClip.managed'), 'MobileConfig should contain webClip payload');
     assert(xml.includes('com.apple.security.root'), 'MobileConfig should contain root certificate payload');
     assert(xml.includes(`https://${lanIp}:3443`), 'MobileConfig WebClip URL should point to HTTPS LAN IP');

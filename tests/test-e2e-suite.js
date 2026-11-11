@@ -47,7 +47,7 @@ async function runE2ESuite() {
 
     // 4. Test HTTP GET /install.mobileconfig
     const mobileConfigRes = await new Promise((resolve, reject) => {
-        http.get(`http://localhost:${testHttpPort}/install.mobileconfig`, res => {
+        http.get(`http://localhost:${testHttpPort}/install.mobileconfig?root=1`, res => {
             let body = '';
             res.on('data', chunk => body += chunk);
             res.on('end', () => resolve({ status: res.statusCode, headers: res.headers, body }));
