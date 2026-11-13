@@ -1,0 +1,40 @@
+name: Build iPhone IPA
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/ios-standalone]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/build-mobile.cjs
+      - run: npx cap copy ios
+      - name: Build unsigned iPhone application
+        run: |
+          set -o pipefail
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath artifacts/build IPHONEOS_DEPLOYMENT_TARGET=17.0 CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tee build.log
+      - name: Package IPA for user signing
+        run: |
+          mkdir -p artifacts/Payload
+          cp -R artifacts/build/Build/Products/Release-iphoneos/App.app artifacts/Payload/
+          cd artifacts
+          /usr/bin/zip -qry LocketStudio-unsigned.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LocketStudio-unsigned-IPA
+          path: artifacts/LocketStudio-unsigned.ipa
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ios-build-log
+          path: build.log

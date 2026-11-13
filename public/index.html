@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Locket VIP">
@@ -18,19 +18,20 @@
     <div class="phone">
       <!-- 1. MÀN HÌNH ĐĂNG NHẬP -->
       <section id="login" class="login">
-        <div class="mark">💛</div>
+        <img class="mark" src="/icon.svg" alt="">
         <h1>Locket VIP</h1>
-        <p class="sub">Chụp photobooth, ảnh đôi Dual Cam, GIF, video rồi đăng lên widget Locket. Mở khóa 100% tính năng VIP vĩnh viễn.</p>
+        <p class="sub">Gửi ảnh và video lên widget Locket của bạn bè.</p>
         
-        <label for="email">EMAIL</label>
-        <input id="email" type="email" autocomplete="username" placeholder="ban@email.com">
+        <label for="email">EMAIL HOẶC SỐ ĐIỆN THOẠI</label>
+        <input id="email" type="text" autocomplete="username" placeholder="ban@email.com hoặc +84…">
         
         <label for="password">MẬT KHẨU</label>
         <input id="password" type="password" autocomplete="current-password" placeholder="Mật khẩu Locket">
         
         <button id="loginBtn" class="primary" type="button">Đăng nhập</button>
+        <button id="localStudioBtn" class="ghost" type="button">Mở camera offline</button>
         <a class="ghost" href="/install.mobileconfig" style="display:block;text-align:center;text-decoration:none;">📲 Cài lên iPhone</a>
-        <p id="loginError" class="fine text-red"></p>
+        <p id="loginError" class="fine text-red" role="status"></p>
         
         <details style="margin-top:16px;">
           <summary class="fine" style="cursor:pointer;">Hoặc dán phiên đăng nhập (JSON token)</summary>
@@ -40,23 +41,29 @@
       </section>
 
       <!-- 2. MÀN HÌNH CHÍNH CỦA APP -->
-      <section id="app" class="hidden" style="display:flex;flex-direction:column;min-height:100vh;">
+      <section id="app" class="hidden">
         <!-- TOPBAR -->
         <header class="topbar">
-          <button id="themeToggleBtn" class="iconbtn" type="button" title="Đổi giao diện">🎨</button>
-          <button id="audienceBtn" class="pill" type="button">👥 Tất cả bạn bè</button>
-          <button id="profileBtn" class="iconbtn" type="button" style="padding:0;overflow:hidden;" title="Hồ sơ">
+          <button id="profileBtn" class="iconbtn profile-btn" type="button" title="Hồ sơ" aria-label="Hồ sơ">
             <img id="meAvatar" class="avatar" alt="Avatar" src="/icon.svg">
           </button>
+          <button id="audienceBtn" class="pill" type="button">Tất cả bạn bè</button>
+          <button id="themeToggleBtn" class="iconbtn" type="button" title="Đổi giao diện" aria-label="Đổi giao diện">✦</button>
         </header>
 
         <!-- STAGE CHỨA 5 VIEWS -->
         <main class="stage">
           <!-- VIEW 1: BẢNG TIN FEED -->
           <section id="view-feed" class="hidden">
+            <div class="chat-header">
+              <h3>Bảng tin</h3>
+              <button id="feedRefresh" class="iconbtn" type="button" aria-label="Tải lại bảng tin">↻</button>
+            </div>
+            <p id="feedStatus" class="hint" role="status"></p>
             <div id="feedList" class="feed-container">
               <p class="hint">Đang tải khoảnh khắc bạn bè...</p>
             </div>
+            <button id="feedOlder" class="ghost hidden" type="button">Xem bài cũ hơn</button>
           </section>
 
           <!-- VIEW 2: KỶ NIỆM MEMORIES -->
@@ -90,7 +97,15 @@
               <video id="backVideo" autoplay playsinline muted></video>
               <video id="frontVideo" autoplay playsinline muted class="hidden"></video>
               <canvas id="shot" width="1080" height="1080" class="hidden"></canvas>
-              <video id="previewVideo" autoplay playsinline loop class="hidden"></video>
+              <video id="previewVideo" autoplay playsinline loop muted class="hidden"></video>
+              <img id="gifPreview" class="hidden" alt="Ảnh GIF vừa chụp">
+              <canvas id="framePreview" width="1080" height="1080" class="hidden" aria-hidden="true"></canvas>
+              <canvas id="costumePreview" width="480" height="480" class="hidden" aria-hidden="true"></canvas>
+              <div id="cameraFallback" class="camera-fallback">
+                <span class="camera-symbol" aria-hidden="true"></span>
+                <p id="cameraStatus">Đang mở camera…</p>
+                <button id="resetCamBtn" class="pill" type="button">Mở lại camera</button>
+              </div>
 
               <!-- HIỆU ỨNG ĐẾM NGƯỢC -->
               <div id="countdownIndicator" class="countdown-badge hidden">3</div>
@@ -101,8 +116,8 @@
                 <button class="tool-frame" id="frameBtn" type="button" title="Khung ảnh">▢</button>
                 <button class="tool-photobooth" id="photoboothBtn" type="button" title="Photobooth">▦</button>
                 <button class="tool-dual" id="dualBtn" type="button" title="Dual Camera">▣</button>
-                <button class="tool-gif" id="gifBtn" type="button" title="Chụp GIF">GIF</button>
-                <button class="tool-mic" id="micBtn" type="button" title="Âm thanh micro">🎤</button>
+                <button class="tool-gif" id="gifBtn" type="button" title="Chụp GIF" aria-pressed="false">GIF</button>
+                <button class="tool-mic" id="micBtn" type="button" title="Âm thanh micro" aria-pressed="false">🔇</button>
                 <button class="tool-flip" id="flipBtn" type="button" title="Đảo camera">↻</button>
               </div>
 
@@ -129,19 +144,19 @@
 
             <!-- THANH ĐIỀU KHIỂN CHỤP ẢNH -->
             <div class="shutter-row" id="normalShutterRow">
-              <button id="galleryBtn" class="side-btn" type="button" title="Tải ảnh từ thư viện">📁</button>
+              <button id="galleryBtn" class="side-btn" type="button" aria-label="Chọn ảnh hoặc video" title="Thư viện"><span class="gallery-symbol" aria-hidden="true"></span></button>
               <button id="shutter" class="shutter" type="button" aria-label="Chụp ảnh hoặc giữ để quay"><i></i></button>
-              <button id="resetCamBtn" class="side-btn" type="button" title="Làm mới">↺</button>
             </div>
 
             <!-- THANH ĐIỀU KHIỂN SAU KHI CHỤP (ĐĂNG / HỦY) -->
             <div class="shutter-row hidden" id="postShutterRow">
               <button id="retakeBtn" class="side-btn" type="button" title="Chụp lại">✕</button>
-              <button id="sendBtn" class="send-pill-btn" type="button">🚀 Bắn lên Locket</button>
+              <button id="sendBtn" class="send-pill-btn" type="button">Gửi Locket ↑</button>
               <button id="downloadBtn" class="side-btn" type="button" title="Tải về máy">⬇</button>
             </div>
 
-            <p id="camHint" class="hint">Chạm để chụp · Giữ để quay · Dual cam & GIF & Photobooth đã mở</p>
+            <p id="camHint" class="hint" role="status">Chạm để chụp · Giữ để quay</p>
+            <button id="transformShotBtn" class="ghost hidden" type="button">✦ Tạo diện mạo</button>
             <input id="filePick" type="file" accept="image/*,video/*" class="hidden">
             <input id="frameFilePick" type="file" accept="image/png,image/svg+xml" class="hidden">
           </section>
@@ -149,8 +164,23 @@
           <!-- VIEW 4: TIN NHẮN MESSAGES -->
           <section id="view-messages" class="hidden">
             <div class="messages-wrap">
-              <h3>Bạn bè & Tin nhắn</h3>
-              <div id="messagesList" class="friends-list"></div>
+              <div id="friendDirectory">
+                <h3>Tin nhắn</h3>
+                <div id="messagesList" class="friends-list"></div>
+              </div>
+              <section id="chatThread" class="hidden">
+                <div class="chat-header">
+                  <button id="chatBack" class="iconbtn" type="button" aria-label="Về danh sách bạn bè">‹</button>
+                  <h3 id="chatName"></h3>
+                  <button id="chatRefresh" class="iconbtn" type="button" aria-label="Tải lại tin nhắn">↻</button>
+                </div>
+                <div id="chatHistory" class="chat-history" role="log"></div>
+                <form id="chatForm" class="chat-form">
+                  <input id="chatText" type="text" placeholder="Nhắn gì đó…" aria-label="Nội dung tin nhắn" maxlength="1000" required>
+                  <button class="choice on" type="submit">Gửi</button>
+                </form>
+                <p id="chatStatus" class="hint" role="status"></p>
+              </section>
             </div>
           </section>
 
@@ -160,9 +190,8 @@
               <div class="user-card">
                 <img id="moreAvatar" class="avatar-lg" src="/icon.svg" alt="">
                 <div>
-                  <h3 id="moreDisplayName">Yang Lee</h3>
-                  <p id="moreEmail" class="fine" style="text-align:left;">email@domain.com</p>
-                  <span class="vip-tag">⭐ VIP UNLOCKED</span>
+                  <h3 id="moreDisplayName">Tài khoản Locket</h3>
+                  <p id="moreEmail" class="fine" style="text-align:left;"></p>
                 </div>
               </div>
 
@@ -186,11 +215,11 @@
 
         <!-- DOCK DƯỚI CÙNG CHUYỂN 5 TABS -->
         <nav class="dock">
-          <button type="button" data-view="feed" title="Bảng tin">▦</button>
-          <button type="button" data-view="memories" title="Kỷ niệm">📅</button>
-          <button type="button" data-view="camera" class="active" title="Camera">⌂</button>
-          <button type="button" data-view="messages" title="Tin nhắn">💬</button>
-          <button type="button" data-view="more" title="Cài đặt">⚙</button>
+          <button type="button" data-view="feed" title="Bảng tin"><span aria-hidden="true">▦</span>Bảng tin</button>
+          <button type="button" data-view="memories" title="Kỷ niệm"><span aria-hidden="true">◷</span>Kỷ niệm</button>
+          <button type="button" data-view="camera" class="active" title="Camera"><span aria-hidden="true">◉</span>Camera</button>
+          <button type="button" data-view="messages" title="Tin nhắn"><span aria-hidden="true">☻</span>Tin nhắn</button>
+          <button type="button" data-view="more" title="Cài đặt"><span aria-hidden="true">⚙</span>Cài đặt</button>
         </nav>
       </section>
     </div>
@@ -201,7 +230,6 @@
     <!-- 1. MODAL PHOTOBOOTH -->
     <div id="photoboothSheet" class="sheet hidden">
       <h3>Photobooth Studio ⚡</h3>
-      <p class="fine" style="text-align:left;margin-top:0;">Mở khóa tất cả bố cục và hẹn giờ tự động</p>
       
       <label>CHỌN BỐ CỤC LƯỚI (LAYOUT)</label>
       <div class="grid-layout-options">
@@ -227,19 +255,106 @@
     </div>
 
     <!-- 2. MODAL FX & BỘ LỌC -->
-    <div id="fxSheet" class="sheet hidden">
-      <h3>Hiệu Ứng & Bộ Lọc ✦</h3>
-      <div class="chips" style="flex-wrap:wrap;margin:12px 0;">
-        <button type="button" class="choice on" data-fx="none">Gốc</button>
-        <button type="button" class="choice" data-fx="fresh">Trong trẻo</button>
-        <button type="button" class="choice" data-fx="warm">Ấm áp</button>
-        <button type="button" class="choice" data-fx="cold">Mát lạnh</button>
-        <button type="button" class="choice" data-fx="golden">Nắng vàng</button>
-        <button type="button" class="choice" data-fx="vintage">Hoài cổ</button>
-        <button type="button" class="choice" data-fx="noir">Noir</button>
-        <button type="button" class="choice" data-fx="bw">Đen trắng</button>
+    <div id="fxSheet" class="sheet effect-sheet hidden">
+      <div class="effect-handle" aria-hidden="true"></div>
+      <div class="chat-header">
+        <h3>Hiệu ứng</h3>
+        <button class="iconbtn closeSheetBtn" type="button" aria-label="Đóng hiệu ứng">×</button>
       </div>
-      <button class="ghost closeSheetBtn" type="button">Xong</button>
+      <div id="extraEffectCatalog"></div>
+      <h4>😜 Biến hình</h4>
+      <div class="effect-row transform-tiles">
+        <button type="button" class="choice" data-costume="fisheye" aria-pressed="false"><span class="warp-tile fish" aria-hidden="true">😄</span>Mắt cá</button>
+        <button type="button" class="choice" data-costume="magnify" aria-pressed="false"><span class="warp-tile zoom" aria-hidden="true">😄</span>Phóng to</button>
+        <button type="button" class="choice" data-costume="cheeks" aria-pressed="false"><span class="warp-tile cheeks" aria-hidden="true">😄</span>Phình má</button>
+        <button type="button" class="choice" data-costume="tiny" aria-pressed="false"><span class="warp-tile tiny" aria-hidden="true">😄</span>Tí hon</button>
+      </div>
+      <h4>📸 Photobooth</h4>
+      <div class="effect-row">
+        <button type="button" class="choice" data-booth="2x2" data-booth-frame="pastel"><span class="booth-tile grid pink" aria-hidden="true"></span>Hồng Pastel</button>
+        <button type="button" class="choice" data-booth="2x2" data-booth-frame="stars"><span class="booth-tile grid blue" aria-hidden="true"></span>Đêm Sao</button>
+        <button type="button" class="choice" data-booth="2x2" data-booth-frame="none"><span class="booth-tile grid" aria-hidden="true"></span>Lưới 4 ô</button>
+        <button type="button" class="choice" data-booth="1x2" data-booth-frame="none"><span class="booth-tile pair" aria-hidden="true"></span>Khung đôi</button>
+      </div>
+      <h4>Màu tự nhiên</h4>
+      <div class="effect-row">
+        <button type="button" class="choice on" data-fx="none"><span aria-hidden="true">◯</span>Gốc</button>
+        <button type="button" class="choice" data-fx="fresh"><span aria-hidden="true">🌿</span>Trong trẻo</button>
+        <button type="button" class="choice" data-fx="golden"><span aria-hidden="true">🌅</span>Hoàng hôn</button>
+        <button type="button" class="choice" data-fx="warm"><span aria-hidden="true">🍂</span>Nâu ấm</button>
+      </div>
+      <h4>Màu phim &amp; Mood</h4>
+      <div class="effect-row">
+        <button type="button" class="choice" data-fx="vintage"><span aria-hidden="true">📼</span>Phim 90s</button>
+        <button type="button" class="choice" data-fx="noir"><span aria-hidden="true">🎬</span>Noir</button>
+        <button type="button" class="choice" data-fx="bw"><span aria-hidden="true">◐</span>Trắng đen</button>
+        <button type="button" class="choice" data-fx="cold"><span aria-hidden="true">❄️</span>Băng giá</button>
+      </div>
+      <h4>Goofy</h4>
+      <div class="effect-row">
+        <button type="button" class="choice" data-costume="off" aria-pressed="true"><span aria-hidden="true">◯</span>Tắt hóa trang</button>
+        <button type="button" class="choice" data-costume="cat" aria-pressed="false"><span aria-hidden="true">🐱</span>Mèo</button>
+        <button type="button" class="choice" data-costume="glasses" aria-pressed="false"><span aria-hidden="true">🕶️</span>Kính</button>
+        <button type="button" class="choice" data-costume="lips" aria-pressed="false"><span aria-hidden="true">💋</span>Influencer</button>
+      </div>
+      <h4>Looks</h4>
+      <div class="effect-row">
+        <button type="button" class="choice" data-costume="buns" aria-pressed="false"><span aria-hidden="true">🎀</span>Buns</button>
+        <button type="button" class="choice" data-costume="mohawk" aria-pressed="false"><span aria-hidden="true">⚡</span>Mohawk</button>
+        <button type="button" class="choice" data-costume="braces" aria-pressed="false"><span aria-hidden="true">😁</span>Braces</button>
+      </div>
+      <h4>Celebrate</h4>
+      <div class="effect-row">
+        <button type="button" class="choice" data-costume="crown" aria-pressed="false"><span aria-hidden="true">👑</span>Princess</button>
+        <button type="button" class="choice" data-costume="party" aria-pressed="false"><span aria-hidden="true">🎉</span>Sinh nhật</button>
+      </div>
+      <h4>Làm đẹp</h4>
+      <label class="beauty-control" for="skinSmooth">Mịn da <input id="skinSmooth" type="range" min="0" max="100" value="0"><output id="skinSmoothValue" for="skinSmooth">0%</output></label>
+      <button id="aiFilterBtn" type="button" class="ghost">✦ AI chọn màu</button>
+      <div class="effect-footer">
+        <button id="openTransformBtn" type="button" class="primary">✦ Tạo diện mạo</button>
+      </div>
+    </div>
+
+    <div id="transformSheet" class="sheet hidden">
+      <h3>Tạo diện mạo</h3>
+      <form id="transformForm">
+        <label for="transformSource">Ảnh gốc</label>
+        <input id="transformSource" type="file" accept="image/*">
+        <p id="transformSourceLabel" class="fine"></p>
+        <label for="transformStyle">Kiểu biến hình</label>
+        <select id="transformStyle">
+          <optgroup label="Ghép hóa trang — không cần API">
+            <option value="local-santa" selected>🎅 Ông già Noel</option>
+            <option value="local-tire">🛞 Người lốp xe</option>
+          </optgroup>
+          <optgroup label="AI trên máy — không cần Gemini">
+            <option value="device-santa">🎅 Biến thành ông già Noel (AI)</option>
+            <option value="device-tire">🛞 Biến thành người lốp xe (AI)</option>
+          </optgroup>
+          <optgroup label="Trên máy — không cần API">
+            <option value="local-fisheye">Mắt cá</option>
+            <option value="local-magnify">Phóng to</option>
+            <option value="local-cheeks">Phình má</option>
+            <option value="local-tiny">Tí hon</option>
+            <option value="local-smooth">Mịn da</option>
+          </optgroup>
+          <optgroup label="AI tạo ảnh — cần API và hạn mức">
+            <option value="anime">Anime (AI)</option>
+            <option value="clay">Nhân vật đất sét (AI)</option>
+            <option value="idol">Idol (AI)</option>
+            <option value="fantasy">Hoàng gia (AI)</option>
+            <option value="reference">Theo ảnh mẫu (AI)</option>
+          </optgroup>
+        </select>
+        <label for="transformReference">Ảnh mẫu</label>
+        <input id="transformReference" type="file" accept="image/*">
+        <p id="transformModeHint" class="fine">Xử lý ngay trên máy, không cần Gemini hay API key. Lần đầu cần mạng để tải bộ nhận diện khuôn mặt.</p>
+        <p class="fine"><a href="/local-ai-progress.html" target="_blank" rel="noopener">Xem tiến độ cài AI trên máy ↗</a></p>
+        <button class="primary" type="submit">Tạo ảnh</button>
+        <p id="transformStatus" class="fine" role="status"></p>
+      </form>
+      <button class="ghost closeSheetBtn" type="button">Đóng</button>
     </div>
 
     <!-- 3. MODAL KHUNG ẢNH -->
@@ -251,6 +366,9 @@
         <button type="button" class="choice" data-frame="film">Film Cổ Điển</button>
         <button type="button" class="choice" data-frame="gold">Gold VIP</button>
         <button type="button" class="choice" data-frame="heart">Trái Tim</button>
+        <button type="button" class="choice" data-frame="pastel">Pastel</button>
+        <button type="button" class="choice" data-frame="stars">Đêm Sao</button>
+        <button type="button" class="choice" data-frame="postcard">Bưu Thiếp</button>
       </div>
       <button id="uploadCustomFrameBtn" class="ghost" type="button" style="margin-top:8px;">📂 Tự tải khung viền PNG lên</button>
       <button class="ghost closeSheetBtn" type="button" style="margin-top:8px;">Xong</button>

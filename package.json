@@ -8,10 +8,22 @@
     "test": "node tests/test-server-ssl.js && node tests/test-dom-structure.js && node tests/test-app-auth.js && node tests/test-camera-engine.js && node tests/test-photobooth-compositor.js && node tests/test-feed-memories.js && node tests/test-fix-pass.js && node tests/test-e2e-suite.js"
   },
   "dependencies": {
+    "@capacitor/core": "^7.6.10",
+    "@capacitor/ios": "^7.6.10",
+    "@tensorflow-models/blazeface": "0.1.0",
+    "@tensorflow-models/mobilenet": "2.1.1",
+    "@tensorflow/tfjs": "4.22.0",
     "axios": "^1.6.8",
+    "buffer": "^6.0.3",
     "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
     "express": "^4.19.2",
+    "gifenc": "1.0.3",
     "selfsigned": "^5.5.0",
     "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.6.10",
+    "esbuild": "^0.28.2"
   }
 }

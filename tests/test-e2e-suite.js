@@ -72,6 +72,119 @@ async function runE2ESuite() {
     assert.strictEqual(httpsRes.status, 200, 'HTTPS root should return 200');
     assert(httpsRes.body.includes('Locket VIP'), 'Response should contain Locket VIP title');
     console.log('[PASS] HTTPS server returned 200 and served index.html securely');
+    const encoderResponse = await fetch(`http://localhost:${testHttpPort}/vendor/gifenc.js`);
+    assert.strictEqual(encoderResponse.status, 200);
+    const encoderSource = await encoderResponse.text();
+    const { GIFEncoder } = await import('data:text/javascript;base64,' + Buffer.from(encoderSource).toString('base64'));
+    const gif = GIFEncoder();
+    const palette = [[0, 0, 0], [255, 255, 255]];
+    gif.writeFrame(Uint8Array.of(0), 1, 1, { palette, delay: 125 });
+    gif.writeFrame(Uint8Array.of(1), 1, 1, { palette, delay: 125 });
+    gif.finish();
+    assert.strictEqual(Buffer.from(gif.bytes()).subarray(0, 6).toString(), 'GIF89a');
+    console.log('[PASS] Browser GIF module is served and encodes animation frames');
+    for (const script of ['tf.js', 'mobilenet.js', 'blazeface.js']) {
+        const response = await fetch(`http://localhost:${testHttpPort}/vendor/${script}`);
+        assert.strictEqual(response.status, 200);
+        await response.arrayBuffer();
+    }
+
+    const axios = require('axios');
+    const originalPost = axios.post;
+    const originalGet = axios.get;
+    const originalOpenAIKey = process.env.OPENAI_API_KEY;
+    const originalGeminiKey = process.env.GEMINI_API_KEY;
+    const originalProvider = process.env.IMAGE_API_PROVIDER;
+    const request = async (route, body) => {
+        const response = await fetch(`http://localhost:${testHttpPort}${route}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: 'test-token', ...body })
+        });
+        assert.strictEqual(response.status, 200);
+        return response.json();
+    };
+    try {
+        process.env.OPENAI_API_KEY = 'mock-openai-key';
+        process.env.IMAGE_API_PROVIDER = 'openai';
+        delete process.env.GEMINI_API_KEY;
+        axios.post = async (url, body) => {
+            if (url.startsWith('https://generativelanguage.googleapis.com/')) {
+                assert.deepStrictEqual(body.generationConfig.responseModalities, ['IMAGE']);
+                assert.deepStrictEqual(body.contents[0].parts.slice(1).map(part => part.inlineData.mimeType), ['image/webp', 'image/png']);
+                return { data: { candidates: [{ content: { parts: [{ inlineData: { mimeType: 'image/png', data: 'YWJj' } }] } }] } };
+            }
+            if (url === 'https://api.openai.com/v1/images/edits') {
+                assert.strictEqual(body.images.length, 2);
+                assert(body.prompt.includes('second image'));
+                return { data: { data: [{ b64_json: 'YWJj' }] } };
+            }
+            if (url.endsWith('/getLatestMomentV2')) {
+                assert.strictEqual(body.data.last_fetch, undefined);
+                assert.deepStrictEqual(body.data.users, ['friend']);
+                return { status: 200, data: { result: { status: 200, data: [{ canonical_uid: 'moment' }] } } };
+            }
+            if (url.endsWith('/signInWithPhonePassword')) {
+                assert.strictEqual(body.data.phone, '+84901234567');
+                return { status: 200, data: { result: { token: 'custom-token' } } };
+            }
+            if (url.includes('/verifyCustomToken?')) {
+                assert.strictEqual(body.token, 'custom-token');
+                return { data: { idToken: 'phone-token', localId: 'me' } };
+            }
+            if (url.endsWith('/getFriendsV2')) {
+                return { status: 200, data: { result: { status: 200, data: [{ uid: 'friend', first_name: 'An' }] } } };
+            }
+            assert(url.endsWith('/sendChatMessageV2'));
+            assert.strictEqual(body.data.receiver_uid, 'friend');
+            assert.strictEqual(body.data.msg, 'Chào An');
+            return { status: 200, data: { result: { status: 200 } } };
+        };
+        axios.get = async url => ({
+            data: { documents: url.endsWith('/users/me/conversations') ? [{
+                name: 'users/me/conversations/thread',
+                fields: { members: { arrayValue: { values: [{ stringValue: 'me' }, { stringValue: 'friend' }] } } }
+            }] : [{
+                fields: { body: { stringValue: 'Chào An' }, sender: { stringValue: 'me' } }
+            }] }
+        });
+        assert.deepStrictEqual(await request('/api/friends', {}), {
+            friends: [{ uid: 'friend', name: 'An', username: '', photoUrl: '' }]
+        });
+        assert.deepStrictEqual((await request('/api/feed', { users: ['friend'] })).result.data, [{ canonical_uid: 'moment' }]);
+        assert.strictEqual((await request('/api/login', { phone: '+84901234567', password: 'test-password' })).localId, 'me');
+        const sent = await request('/api/chat/send', { friendUid: 'friend', message: ' Chào An ' });
+        assert.strictEqual(sent.success, true);
+        assert(sent.clientToken);
+        assert.deepStrictEqual(await request('/api/chat/history', { localId: 'me', friendUid: 'friend' }), {
+            conversationId: 'thread',
+            messages: [{ text: 'Chào An', mine: true }]
+        });
+        console.log('[PASS] Friends, chat send, and history with mocked upstream responses');
+        assert.deepStrictEqual(await request('/api/ai/transform', {
+            style: 'reference', image: 'data:image/webp;base64,YWJj', reference: 'data:image/png;base64,ZGVm'
+        }), { image: 'data:image/webp;base64,YWJj' });
+        process.env.GEMINI_API_KEY = 'mock-gemini-key';
+        assert.deepStrictEqual(await request('/api/ai/transform', {
+            style: 'reference', image: 'data:image/webp;base64,YWJj', reference: 'data:image/png;base64,ZGVm'
+        }), { image: 'data:image/webp;base64,YWJj' });
+        delete process.env.IMAGE_API_PROVIDER;
+        assert.deepStrictEqual(await request('/api/ai/transform', {
+            style: 'reference', image: 'data:image/webp;base64,YWJj', reference: 'data:image/png;base64,ZGVm'
+        }), { image: 'data:image/png;base64,YWJj' });
+        assert.deepStrictEqual(await request('/api/chat/inbox', { localId: 'me' }), {
+            conversations: [{ friendUid: 'friend', conversationId: 'thread', text: '', timestamp: '', unread: 0 }]
+        });
+    } finally {
+        axios.post = originalPost;
+        axios.get = originalGet;
+        if (originalOpenAIKey === undefined) delete process.env.OPENAI_API_KEY;
+        else process.env.OPENAI_API_KEY = originalOpenAIKey;
+        if (originalGeminiKey === undefined) delete process.env.GEMINI_API_KEY;
+        else process.env.GEMINI_API_KEY = originalGeminiKey;
+        if (originalProvider === undefined) delete process.env.IMAGE_API_PROVIDER;
+        else process.env.IMAGE_API_PROVIDER = originalProvider;
+    }
 
     // Clean up test servers
     await new Promise(resolve => testHttpServer.close(resolve));

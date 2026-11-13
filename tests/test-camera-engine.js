@@ -42,6 +42,20 @@ async function runTests() {
     assert.strictEqual(CameraEngine.toggleFacing('environment'), 'user');
     console.log('✓ Camera facing toggle verified');
 
+    let grantPermission;
+    let trackStopped = false;
+    Object.defineProperty(globalThis, 'navigator', {
+        configurable: true,
+        value: { mediaDevices: { getUserMedia: () => new Promise(resolve => { grantPermission = resolve; }) } }
+    });
+    const opening = CameraEngine.startCamera();
+    CameraEngine.stopAll();
+    grantPermission({ getTracks: () => [{ stop: () => { trackStopped = true; } }] });
+    assert.strictEqual(await opening, null);
+    assert.strictEqual(CameraEngine.mainStream, null);
+    assert.strictEqual(trackStopped, true);
+    console.log('✓ Camera stream granted after cancellation is released');
+
     console.log('--- All Task 4 Unit Tests Passed! ---');
 }
 

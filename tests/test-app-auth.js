@@ -22,7 +22,7 @@ async function runTests() {
     };
 
     // Load module logic
-    const { StateManager, applyTheme } = await import('file:///' + appPath.replace(/\\/g, '/'));
+    const { StateManager, applyTheme, refreshTokenIfNeeded } = await import('file:///' + appPath.replace(/\\/g, '/'));
 
     // Test 1: State manager save/load
     const sampleAuth = {
@@ -43,6 +43,18 @@ async function runTests() {
     StateManager.saveAuth({ ...sampleAuth, expiresAt: Date.now() - 1000 });
     assert.strictEqual(StateManager.isTokenExpired(), true, 'Expired token must be recognized');
     console.log('✓ Token expiry accurately calculated');
+
+    let refreshCalls = 0;
+    global.fetch = async () => {
+        refreshCalls++;
+        return { ok: true, json: async () => ({ idToken: 'new_token', expiresIn: 3600 }) };
+    };
+    assert.deepStrictEqual(await Promise.all([refreshTokenIfNeeded(), refreshTokenIfNeeded()]), ['new_token', 'new_token']);
+    assert.strictEqual(refreshCalls, 1);
+    assert.strictEqual(StateManager.isTokenExpired(), false);
+    assert.strictEqual(await refreshTokenIfNeeded(), 'new_token');
+    assert.strictEqual(refreshCalls, 1);
+    console.log('✓ Concurrent refresh requests share a token and store its new expiration');
 
     // Test 3: Theme application
     applyTheme('hot-to-go');
