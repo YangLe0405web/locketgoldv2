@@ -1,410 +1,415 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-    <!-- Kích hoạt chế độ App Full màn hình trên iOS -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Locket VIP">
-
-    <!-- Icon hiển thị ngoài màn hình chính (Bạn có thể thay link ảnh icon của bạn vào đây) -->
-    <link rel="apple-touch-icon" href="https://i.imgur.com/3Z615Vw.png">
-
-    <title>Locket VIP Studio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Khóa cuộn trang web để app có cảm giác tĩnh và mượt như app native */
-        html, body {
-            height: 100%;
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        /* Hỗ trợ tràn viền cho các dòng iPhone đời mới có tai thỏ/dynamic island */
-        body {
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Locket VIP">
+  <meta name="theme-color" content="#070708">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icon.svg">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <title>Locket VIP Studio</title>
 </head>
-<body class="bg-zinc-950 text-white min-h-screen flex flex-col items-center p-4 select-none">
-
-    <!-- Thanh tiêu đề & Nút tải cấu hình iOS (.mobileconfig) -->
-    <div class="w-full max-w-md flex justify-between items-center mb-3">
-        <div>
-            <h1 class="text-lg font-extrabold text-yellow-400">⚡ LOCKET VIP</h1>
-            <p id="userStatus" class="text-[11px] text-zinc-400">Chưa kết nối tài khoản</p>
-        </div>
-        <div class="flex gap-2">
-            <a href="/install.mobileconfig" class="bg-yellow-400/15 hover:bg-yellow-400/25 text-xs px-3 py-2 rounded-xl border border-yellow-400/40 text-yellow-300 font-semibold">
-                📲 Cài Profile iOS
-            </a>
-            <button onclick="logout()" id="logoutBtn" class="hidden bg-zinc-800 text-xs px-2.5 py-2 rounded-xl text-red-400 font-semibold">Đổi acc</button>
-        </div>
-    </div>
-
-    <!-- Khung Kết nối tài khoản (Hỗ trợ dán thẳng JSON từ tab Response) -->
-    <div id="loginBox" class="w-full max-w-md bg-zinc-900 p-4 rounded-2xl mb-4 border border-zinc-800 shadow-lg">
-        <p class="text-xs font-bold text-yellow-400 mb-1">Cách 1: Dán dữ liệu từ thẻ Response (Nhanh nhất</p>
-        <p class="text-[11px] text-zinc-400 mb-2">Copy toàn bộ đoạn <code class="text-green-400">{ "user": { ... } }</code> trong tab Response của mục login rồi dán vào đây:</p>
-        <textarea id="jsonInput" rows="4" placeholder='{"user": {"localId": "...", "idToken": "...", "refreshToken": "..."}}' class="w-full p-2.5 mb-2.5 rounded-xl bg-zinc-800 text-xs outline-none font-mono text-green-400 border border-zinc-700"></textarea>
-        <button onclick="loginWithJson()" class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-extrabold py-2.5 rounded-xl text-xs mb-3">
-            ⚡ Kích hoạt tài khoản bằng JSON
-        </button>
-
-        <details class="text-xs text-zinc-400 border-t border-zinc-800 pt-2">
-            <summary class="cursor-pointer font-semibold">Cách 2: Đăng nhập Email/Mật khẩu (Cần LOCKET_API_KEY)</summary>
-            <input id="email" type="email" placeholder="Email đăng ký Locket" class="w-full p-2.5 mt-2 mb-2 rounded-xl bg-zinc-800 text-xs outline-none text-white">
-            <input id="password" type="password" placeholder="Mật khẩu" class="w-full p-2.5 mb-2 rounded-xl bg-zinc-800 text-xs outline-none text-white">
-            <button onclick="login()" id="loginBtn" class="w-full bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-2 rounded-xl text-xs">Đăng nhập</button>
+<body data-theme="gold">
+  <div class="app-shell">
+    <div class="phone">
+      <!-- 1. MÀN HÌNH ĐĂNG NHẬP -->
+      <section id="login" class="login">
+        <img class="mark" src="/icon.svg" alt="">
+        <h1>Locket VIP</h1>
+        <p class="sub">Gửi ảnh và video lên widget Locket của bạn bè.</p>
+        
+        <label for="email">EMAIL HOẶC SỐ ĐIỆN THOẠI</label>
+        <input id="email" type="text" autocomplete="username" placeholder="ban@email.com hoặc +84…">
+        
+        <label for="password">MẬT KHẨU</label>
+        <input id="password" type="password" autocomplete="current-password" placeholder="Mật khẩu Locket">
+        
+        <button id="loginBtn" class="primary" type="button">Đăng nhập</button>
+        <button id="localStudioBtn" class="ghost" type="button">Mở camera offline</button>
+        <a class="ghost" href="/install.mobileconfig" style="display:block;text-align:center;text-decoration:none;">📲 Cài lên iPhone</a>
+        <p id="loginError" class="fine text-red" role="status"></p>
+        
+        <details style="margin-top:16px;">
+          <summary class="fine" style="cursor:pointer;">Hoặc dán phiên đăng nhập (JSON token)</summary>
+          <textarea id="jsonInput" rows="4" placeholder='{"idToken":"...","localId":"...","refreshToken":"..."}' style="margin-top:8px;font-family:monospace;font-size:11px;"></textarea>
+          <button id="jsonBtn" class="ghost" type="button" style="margin-top:8px;">Kích hoạt bằng JSON</button>
         </details>
-    </div>
+      </section>
 
-    <!-- Bảng điều khiển Studio Chụp Photobooth & Filter -->
-    <div class="w-full max-w-md bg-zinc-900 p-4 rounded-3xl border border-zinc-800 flex flex-col items-center shadow-xl">
+      <!-- 2. MÀN HÌNH CHÍNH CỦA APP -->
+      <section id="app" class="hidden">
+        <!-- TOPBAR -->
+        <header class="topbar">
+          <button id="profileBtn" class="iconbtn profile-btn" type="button" title="Hồ sơ" aria-label="Hồ sơ">
+            <img id="meAvatar" class="avatar" alt="Avatar" src="/icon.svg">
+          </button>
+          <button id="audienceBtn" class="pill" type="button">Tất cả bạn bè</button>
+          <button id="themeToggleBtn" class="iconbtn" type="button" title="Đổi giao diện" aria-label="Đổi giao diện">✦</button>
+        </header>
 
-        <!-- Khung Camera tỉ lệ vuông 1:1 chuẩn Locket -->
-        <div class="relative w-72 h-72 sm:w-80 sm:h-80 rounded-[36px] overflow-hidden bg-black border-2 border-yellow-400/60 mb-3 shadow-inner">
-            <video id="video" autoplay playsinline muted class="w-full h-full object-cover scale-x-[-1]"></video>
-            <canvas id="canvas" width="1080" height="1080" class="w-full h-full object-cover hidden"></canvas>
-            <div id="countdown" class="absolute inset-0 flex items-center justify-center text-6xl font-black text-yellow-400 hidden bg-black/50 backdrop-blur-sm"></div>
-
-            <!-- Nút đảo Camera Trước / Sau -->
-            <button onclick="switchCamera()" class="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md p-2.5 rounded-full text-sm border border-white/20">
-                🔄
-            </button>
-        </div>
-
-        <!-- Bộ chọn Filter Màu/AI & Màu khung Photobooth -->
-        <div class="grid grid-cols-2 gap-2 w-full mb-3">
-            <div>
-                <label class="text-[11px] text-zinc-400">Filter Màu & AI:</label>
-                <select id="filterSelect" onchange="applyLiveFilter()" class="w-full mt-1 p-2 rounded-xl bg-zinc-800 text-xs outline-none">
-                    <option value="none">Mặc định (Gốc)</option>
-                    <option value="contrast(1.15) saturate(1.35) sepia(0.18)">🎞️ Film Kodak Ấm</option>
-                    <option value="brightness(1.08) contrast(1.05) saturate(1.4) hue-rotate(-8deg)">🌸 Hồng Đào Glow</option>
-                    <option value="grayscale(1) contrast(1.35)">🖤 Đen Trắng Retro</option>
-                    <option value="contrast(1.4) saturate(1.8) brightness(1.05)">🤖 AI Anime Vivid</option>
-                    <option value="contrast(1.25) saturate(0.8) hue-rotate(15deg)">❄️ Cyber Lạnh</option>
-                </select>
+        <!-- STAGE CHỨA 5 VIEWS -->
+        <main class="stage">
+          <!-- VIEW 1: BẢNG TIN FEED -->
+          <section id="view-feed" class="hidden">
+            <div class="chat-header">
+              <h3>Bảng tin</h3>
+              <button id="feedRefresh" class="iconbtn" type="button" aria-label="Tải lại bảng tin">↻</button>
             </div>
-            <div>
-                <label class="text-[11px] text-zinc-400">Khung & Nhãn Photobooth:</label>
-                <div class="flex gap-1.5 mt-1">
-                    <input type="color" id="frameColor" value="#18181b" class="w-9 h-8 rounded-lg bg-zinc-800 p-0.5 cursor-pointer">
-                    <select id="stickerSelect" class="w-full p-2 rounded-xl bg-zinc-800 text-xs outline-none">
-                        <option value="✨ LOCKET VIP ✨">✨ Locket VIP</option>
-                        <option value="💖 BESTIES FOREVER 💖">💖 Besties</option>
-                        <option value="🐾 CUTE OVERLOAD 🐾">🐾 Cute</option>
-                        <option value="🔥 GOOD VIBES ONLY 🔥">🔥 Good Vibes</option>
-                    </select>
+            <p id="feedStatus" class="hint" role="status"></p>
+            <div id="feedList" class="feed-container">
+              <p class="hint">Đang tải khoảnh khắc bạn bè...</p>
+            </div>
+            <button id="feedOlder" class="ghost hidden" type="button">Xem bài cũ hơn</button>
+          </section>
+
+          <!-- VIEW 2: KỶ NIỆM MEMORIES -->
+          <section id="view-memories" class="hidden">
+            <div class="memories-wrap">
+              <div class="streak-card">
+                <div class="streak-icon">🔥</div>
+                <div class="streak-info">
+                  <h2 id="streakCount">0 Ngày</h2>
+                  <p>Chuỗi gửi Locket liên tục</p>
                 </div>
-            </div>
-        </div>
-
-        <!-- Cụm nút Chụp đơn / Photobooth 4 tấm / Chọn ảnh từ máy -->
-        <div class="grid grid-cols-3 gap-2 w-full mb-4">
-            <button onclick="captureSingle()" class="bg-zinc-800 hover:bg-zinc-700 py-2.5 rounded-xl text-xs font-semibold">📸 Chụp 1 tấm</button>
-            <button onclick="startPhotobooth()" class="bg-yellow-400 hover:bg-yellow-300 text-black py-2.5 rounded-xl text-xs font-extrabold">🎞️ Photobooth 4x</button>
-            <label class="bg-zinc-800 hover:bg-zinc-700 py-2.5 rounded-xl text-xs font-semibold text-center cursor-pointer">
-                📁 Chọn ảnh
-                <input type="file" accept="image/*" onchange="uploadFromGallery(event)" class="hidden">
-            </label>
-        </div>
-
-        <!-- Tuỳ chỉnh Caption Gradient VIP -->
-        <div class="w-full border-t border-zinc-800 pt-3">
-            <div class="flex gap-2 mb-2">
-                <select id="overlayType" class="w-1/3 p-2 rounded-xl bg-zinc-800 text-xs outline-none">
-                    <option value="standard">💬 Chữ thường</option>
-                    <option value="time">🕒 Kèm Giờ</option>
-                    <option value="music">🎵 Kèm Nhạc</option>
-                </select>
-                <input id="caption" type="text" placeholder="Nhập caption hoặc tên bài hát..." class="w-2/3 p-2 rounded-xl bg-zinc-800 text-xs outline-none">
-            </div>
-
-            <div class="flex items-center justify-between text-[11px] text-zinc-400 mb-3">
-                <span>Màu nền Gradient & Màu chữ:</span>
-                <div class="flex items-center gap-1.5">
-                    <input type="color" id="bgStart" value="#FF512F" title="Màu đầu">
-                    <input type="color" id="bgEnd" value="#DD2476" title="Màu cuối">
-                    <input type="color" id="textColor" value="#FFFFFF" title="Màu chữ">
+              </div>
+              <div class="stat-row">
+                <div class="stat-box">
+                  <span id="totalLockets">0</span>
+                  <label>Lockets đã đăng</label>
                 </div>
+                <div class="stat-box">
+                  <span id="totalFriends">0</span>
+                  <label>Bạn bè kết nối</label>
+                </div>
+              </div>
+              <h3 style="margin:20px 0 10px;">Lịch Kỷ Niệm</h3>
+              <div id="calendarGrid" class="calendar-grid"></div>
+            </div>
+          </section>
+
+          <!-- VIEW 3: CAMERA STUDIO (MẶC ĐỊNH) -->
+          <section id="view-camera" class="cam-wrap">
+            <div class="viewfinder" id="finder">
+              <video id="backVideo" autoplay playsinline muted></video>
+              <video id="frontVideo" autoplay playsinline muted class="hidden"></video>
+              <canvas id="shot" width="1080" height="1080" class="hidden"></canvas>
+              <video id="previewVideo" autoplay playsinline loop muted class="hidden"></video>
+              <img id="gifPreview" class="hidden" alt="Ảnh GIF vừa chụp">
+              <canvas id="framePreview" width="1080" height="1080" class="hidden" aria-hidden="true"></canvas>
+              <canvas id="costumePreview" width="480" height="480" class="hidden" aria-hidden="true"></canvas>
+              <div id="cameraFallback" class="camera-fallback">
+                <span class="camera-symbol" aria-hidden="true"></span>
+                <p id="cameraStatus">Đang mở camera…</p>
+                <button id="resetCamBtn" class="pill" type="button">Mở lại camera</button>
+              </div>
+
+              <!-- HIỆU ỨNG ĐẾM NGƯỢC -->
+              <div id="countdownIndicator" class="countdown-badge hidden">3</div>
+
+              <!-- CÁC NÚT ĐIỀU KHIỂN NỔI TRÊN CAMERA -->
+              <div class="tools" id="cameraTools">
+                <button class="tool-fx" id="fxBtn" type="button" title="Hiệu ứng & Bộ lọc">✦</button>
+                <button class="tool-frame" id="frameBtn" type="button" title="Khung ảnh">▢</button>
+                <button class="tool-photobooth" id="photoboothBtn" type="button" title="Photobooth">▦</button>
+                <button class="tool-dual" id="dualBtn" type="button" title="Dual Camera">▣</button>
+                <button class="tool-gif" id="gifBtn" type="button" title="Chụp GIF" aria-pressed="false">GIF</button>
+                <button class="tool-mic" id="micBtn" type="button" title="Âm thanh micro" aria-pressed="false">🔇</button>
+                <button class="tool-flip" id="flipBtn" type="button" title="Đảo camera">↻</button>
+              </div>
+
+              <!-- KHUNG SOẠN CAPTION TRÊN ẢNH SAU KHI CHỤP -->
+              <div id="editorBar" class="editor-bar hidden">
+                <div class="caption-bubble" id="captionBubble">
+                  <input id="captionInput" type="text" placeholder="Thêm chú thích..." maxlength="80">
+                </div>
+                <div class="preset-chips">
+                  <button type="button" class="chip on" data-preset="standard">Văn bản</button>
+                  <button type="button" class="chip" data-preset="time">🕒 Giờ</button>
+                  <button type="button" class="chip" data-preset="music">🎵 Nhạc</button>
+                  <button type="button" class="chip" data-preset="place">📍 Vị trí</button>
+                </div>
+                <div class="color-row">
+                  <label>Màu nền gradient:</label>
+                  <input type="color" id="bgStartColor" value="#ff9a9e">
+                  <input type="color" id="bgEndColor" value="#fecfef">
+                  <label style="margin-left:8px;">Màu chữ:</label>
+                  <input type="color" id="textColor" value="#ffffff">
+                </div>
+              </div>
             </div>
 
-            <div class="flex gap-2">
-                <button onclick="resetCamera()" class="w-1/3 bg-zinc-800 py-3 rounded-xl text-xs font-semibold">🔄 Chụp lại</button>
-                <button onclick="sendToLocket()" id="sendBtn" class="w-2/3 bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-extrabold py-3 rounded-xl text-xs shadow-lg">
-                    🚀 Bắn lên Widget Locket
+            <!-- THANH ĐIỀU KHIỂN CHỤP ẢNH -->
+            <div class="shutter-row" id="normalShutterRow">
+              <button id="galleryBtn" class="side-btn" type="button" aria-label="Chọn ảnh hoặc video" title="Thư viện"><span class="gallery-symbol" aria-hidden="true"></span></button>
+              <button id="shutter" class="shutter" type="button" aria-label="Chụp ảnh hoặc giữ để quay"><i></i></button>
+            </div>
+
+            <!-- THANH ĐIỀU KHIỂN SAU KHI CHỤP (ĐĂNG / HỦY) -->
+            <div class="shutter-row hidden" id="postShutterRow">
+              <button id="retakeBtn" class="side-btn" type="button" title="Chụp lại">✕</button>
+              <button id="sendBtn" class="send-pill-btn" type="button">Gửi Locket ↑</button>
+              <button id="downloadBtn" class="side-btn" type="button" title="Tải về máy">⬇</button>
+            </div>
+
+            <p id="camHint" class="hint" role="status">Chạm để chụp · Giữ để quay</p>
+            <button id="transformShotBtn" class="ghost hidden" type="button">✦ Tạo diện mạo</button>
+            <input id="filePick" type="file" accept="image/*,video/*" class="hidden">
+            <input id="frameFilePick" type="file" accept="image/png,image/svg+xml" class="hidden">
+          </section>
+
+          <!-- VIEW 4: TIN NHẮN MESSAGES -->
+          <section id="view-messages" class="hidden">
+            <div class="messages-wrap">
+              <div id="friendDirectory">
+                <h3>Tin nhắn</h3>
+                <div id="messagesList" class="friends-list"></div>
+              </div>
+              <section id="chatThread" class="hidden">
+                <div class="chat-header">
+                  <button id="chatBack" class="iconbtn" type="button" aria-label="Về danh sách bạn bè">‹</button>
+                  <h3 id="chatName"></h3>
+                  <button id="chatRefresh" class="iconbtn" type="button" aria-label="Tải lại tin nhắn">↻</button>
+                </div>
+                <div id="chatHistory" class="chat-history" role="log"></div>
+                <form id="chatForm" class="chat-form">
+                  <input id="chatText" type="text" placeholder="Nhắn gì đó…" aria-label="Nội dung tin nhắn" maxlength="1000" required>
+                  <button class="choice on" type="submit">Gửi</button>
+                </form>
+                <p id="chatStatus" class="hint" role="status"></p>
+              </section>
+            </div>
+          </section>
+
+          <!-- VIEW 5: CÀI ĐẶT & HỒ SƠ -->
+          <section id="view-more" class="hidden">
+            <div class="settings-wrap">
+              <div class="user-card">
+                <img id="moreAvatar" class="avatar-lg" src="/icon.svg" alt="">
+                <div>
+                  <h3 id="moreDisplayName">Tài khoản Locket</h3>
+                  <p id="moreEmail" class="fine" style="text-align:left;"></p>
+                </div>
+              </div>
+
+              <div class="menu-group">
+                <button type="button" class="menu-item" id="openThemesBtn">
+                  <span>🎨 Chọn chủ đề (14 Themes Locket Gold)</span>
+                  <i>›</i>
                 </button>
+                <a class="menu-item" href="/install.mobileconfig" style="text-decoration:none;">
+                  <span>📲 Cài đặt cấu hình iOS (WebClip & Root CA)</span>
+                  <i>›</i>
+                </a>
+                <button type="button" class="menu-item danger-text" id="logoutBtn">
+                  <span>Đăng xuất tài khoản</span>
+                  <i>›</i>
+                </button>
+              </div>
             </div>
-        </div>
+          </section>
+        </main>
 
+        <!-- DOCK DƯỚI CÙNG CHUYỂN 5 TABS -->
+        <nav class="dock">
+          <button type="button" data-view="feed" title="Bảng tin"><span aria-hidden="true">▦</span>Bảng tin</button>
+          <button type="button" data-view="memories" title="Kỷ niệm"><span aria-hidden="true">◷</span>Kỷ niệm</button>
+          <button type="button" data-view="camera" class="active" title="Camera"><span aria-hidden="true">◉</span>Camera</button>
+          <button type="button" data-view="messages" title="Tin nhắn"><span aria-hidden="true">☻</span>Tin nhắn</button>
+          <button type="button" data-view="more" title="Cài đặt"><span aria-hidden="true">⚙</span>Cài đặt</button>
+        </nav>
+      </section>
+    </div>
+  </div>
+
+  <!-- OVERLAY CONTAINER CHO CÁC MODAL SHEETS -->
+  <div id="overlay" class="sheet-back hidden">
+    <!-- 1. MODAL PHOTOBOOTH -->
+    <div id="photoboothSheet" class="sheet hidden">
+      <h3>Photobooth Studio ⚡</h3>
+      
+      <label>CHỌN BỐ CỤC LƯỚI (LAYOUT)</label>
+      <div class="grid-layout-options">
+        <button type="button" class="choice on" data-layout="1x2">Dọc 1×2 (2 ảnh)</button>
+        <button type="button" class="choice" data-layout="1x3">Dọc 1×3 (3 ảnh)</button>
+        <button type="button" class="choice" data-layout="1x4">Dọc 1×4 (4 ảnh)</button>
+        <button type="button" class="choice" data-layout="2x2">Lưới 2×2 (4 ảnh)</button>
+        <button type="button" class="choice" data-layout="2x3">Lưới 2×3 (6 ảnh)</button>
+        <button type="button" class="choice" data-layout="3x3">Lưới 3×3 (9 ảnh)</button>
+      </div>
+
+      <label style="margin-top:16px;">HẸN GIỜ GIỮA CÁC LẦN CHỤP</label>
+      <div class="chips">
+        <button type="button" class="choice" data-timer="2">2 Giây</button>
+        <button type="button" class="choice on" data-timer="3">3 Giây</button>
+        <button type="button" class="choice" data-timer="5">5 Giây</button>
+        <button type="button" class="choice" data-timer="7">7 Giây</button>
+        <button type="button" class="choice" data-timer="10">10 Giây</button>
+      </div>
+
+      <button id="startPhotoboothBtn" class="primary" type="button" style="margin-top:20px;">Bắt đầu chụp Photobooth</button>
+      <button class="ghost closeSheetBtn" type="button" style="margin-top:8px;">Đóng</button>
     </div>
 
-    <script>
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-            let currentStream = null;
-            let useFrontCamera = true;
-            let hasCaptured = false;
-            let authData = JSON.parse(localStorage.getItem('locket_auth') || 'null');
+    <!-- 2. MODAL FX & BỘ LỌC -->
+    <div id="fxSheet" class="sheet effect-sheet hidden">
+      <div class="effect-handle" aria-hidden="true"></div>
+      <div class="chat-header">
+        <h3>Hiệu ứng</h3>
+        <button class="iconbtn closeSheetBtn" type="button" aria-label="Đóng hiệu ứng">×</button>
+      </div>
+      <div id="extraEffectCatalog"></div>
+      <h4>😜 Biến hình</h4>
+      <div class="effect-row transform-tiles">
+        <button type="button" class="choice" data-costume="fisheye" aria-pressed="false"><span class="warp-tile fish" aria-hidden="true">😄</span>Mắt cá</button>
+        <button type="button" class="choice" data-costume="magnify" aria-pressed="false"><span class="warp-tile zoom" aria-hidden="true">😄</span>Phóng to</button>
+        <button type="button" class="choice" data-costume="cheeks" aria-pressed="false"><span class="warp-tile cheeks" aria-hidden="true">😄</span>Phình má</button>
+        <button type="button" class="choice" data-costume="tiny" aria-pressed="false"><span class="warp-tile tiny" aria-hidden="true">😄</span>Tí hon</button>
+      </div>
+      <h4>📸 Photobooth</h4>
+      <div class="effect-row">
+        <button type="button" class="choice" data-booth="2x2" data-booth-frame="pastel"><span class="booth-tile grid pink" aria-hidden="true"></span>Hồng Pastel</button>
+        <button type="button" class="choice" data-booth="2x2" data-booth-frame="stars"><span class="booth-tile grid blue" aria-hidden="true"></span>Đêm Sao</button>
+        <button type="button" class="choice" data-booth="2x2" data-booth-frame="none"><span class="booth-tile grid" aria-hidden="true"></span>Lưới 4 ô</button>
+        <button type="button" class="choice" data-booth="1x2" data-booth-frame="none"><span class="booth-tile pair" aria-hidden="true"></span>Khung đôi</button>
+      </div>
+      <h4>Màu tự nhiên</h4>
+      <div class="effect-row">
+        <button type="button" class="choice on" data-fx="none"><span aria-hidden="true">◯</span>Gốc</button>
+        <button type="button" class="choice" data-fx="fresh"><span aria-hidden="true">🌿</span>Trong trẻo</button>
+        <button type="button" class="choice" data-fx="golden"><span aria-hidden="true">🌅</span>Hoàng hôn</button>
+        <button type="button" class="choice" data-fx="warm"><span aria-hidden="true">🍂</span>Nâu ấm</button>
+      </div>
+      <h4>Màu phim &amp; Mood</h4>
+      <div class="effect-row">
+        <button type="button" class="choice" data-fx="vintage"><span aria-hidden="true">📼</span>Phim 90s</button>
+        <button type="button" class="choice" data-fx="noir"><span aria-hidden="true">🎬</span>Noir</button>
+        <button type="button" class="choice" data-fx="bw"><span aria-hidden="true">◐</span>Trắng đen</button>
+        <button type="button" class="choice" data-fx="cold"><span aria-hidden="true">❄️</span>Băng giá</button>
+      </div>
+      <h4>Goofy</h4>
+      <div class="effect-row">
+        <button type="button" class="choice" data-costume="off" aria-pressed="true"><span aria-hidden="true">◯</span>Tắt hóa trang</button>
+        <button type="button" class="choice" data-costume="cat" aria-pressed="false"><span aria-hidden="true">🐱</span>Mèo</button>
+        <button type="button" class="choice" data-costume="glasses" aria-pressed="false"><span aria-hidden="true">🕶️</span>Kính</button>
+        <button type="button" class="choice" data-costume="lips" aria-pressed="false"><span aria-hidden="true">💋</span>Influencer</button>
+      </div>
+      <h4>Looks</h4>
+      <div class="effect-row">
+        <button type="button" class="choice" data-costume="buns" aria-pressed="false"><span aria-hidden="true">🎀</span>Buns</button>
+        <button type="button" class="choice" data-costume="mohawk" aria-pressed="false"><span aria-hidden="true">⚡</span>Mohawk</button>
+        <button type="button" class="choice" data-costume="braces" aria-pressed="false"><span aria-hidden="true">😁</span>Braces</button>
+      </div>
+      <h4>Celebrate</h4>
+      <div class="effect-row">
+        <button type="button" class="choice" data-costume="crown" aria-pressed="false"><span aria-hidden="true">👑</span>Princess</button>
+        <button type="button" class="choice" data-costume="party" aria-pressed="false"><span aria-hidden="true">🎉</span>Sinh nhật</button>
+      </div>
+      <h4>Làm đẹp</h4>
+      <label class="beauty-control" for="skinSmooth">Mịn da <input id="skinSmooth" type="range" min="0" max="100" value="0"><output id="skinSmoothValue" for="skinSmooth">0%</output></label>
+      <button id="aiFilterBtn" type="button" class="ghost">✦ AI chọn màu</button>
+      <div class="effect-footer">
+        <button id="openTransformBtn" type="button" class="primary">✦ Tạo diện mạo</button>
+      </div>
+    </div>
 
-            function updateAuthUI() {
-              if (authData && authData.idToken) {
-                document.getElementById('loginBox').classList.add('hidden');
-                document.getElementById('logoutBtn').classList.remove('hidden');
-                document.getElementById('userStatus').innerText = `Đã kết nối: ${authData.displayName || authData.email || 'Locket VIP'}`;
-              } else {
-                document.getElementById('loginBox').classList.remove('hidden');
-                document.getElementById('logoutBtn').classList.add('hidden');
-                document.getElementById('userStatus').innerText = 'Chưa kết nối tài khoản';
-              }
-            }
-            updateAuthUI();
+    <div id="transformSheet" class="sheet hidden">
+      <h3>Tạo diện mạo</h3>
+      <form id="transformForm">
+        <label for="transformSource">Ảnh gốc</label>
+        <input id="transformSource" type="file" accept="image/*">
+        <p id="transformSourceLabel" class="fine"></p>
+        <label for="transformStyle">Kiểu biến hình</label>
+        <select id="transformStyle">
+          <optgroup label="Ghép hóa trang — không cần API">
+            <option value="local-santa" selected>🎅 Ông già Noel</option>
+            <option value="local-tire">🛞 Người lốp xe</option>
+          </optgroup>
+          <optgroup label="AI trên máy — không cần Gemini">
+            <option value="device-santa">🎅 Biến thành ông già Noel (AI)</option>
+            <option value="device-tire">🛞 Biến thành người lốp xe (AI)</option>
+          </optgroup>
+          <optgroup label="Trên máy — không cần API">
+            <option value="local-fisheye">Mắt cá</option>
+            <option value="local-magnify">Phóng to</option>
+            <option value="local-cheeks">Phình má</option>
+            <option value="local-tiny">Tí hon</option>
+            <option value="local-smooth">Mịn da</option>
+          </optgroup>
+          <optgroup label="AI tạo ảnh — cần API và hạn mức">
+            <option value="anime">Anime (AI)</option>
+            <option value="clay">Nhân vật đất sét (AI)</option>
+            <option value="idol">Idol (AI)</option>
+            <option value="fantasy">Hoàng gia (AI)</option>
+            <option value="reference">Theo ảnh mẫu (AI)</option>
+          </optgroup>
+        </select>
+        <label for="transformReference">Ảnh mẫu</label>
+        <input id="transformReference" type="file" accept="image/*">
+        <p id="transformModeHint" class="fine">Xử lý ngay trên máy, không cần Gemini hay API key. Lần đầu cần mạng để tải bộ nhận diện khuôn mặt.</p>
+        <p class="fine"><a href="/local-ai-progress.html" target="_blank" rel="noopener">Xem tiến độ cài AI trên máy ↗</a></p>
+        <button class="primary" type="submit">Tạo ảnh</button>
+        <p id="transformStatus" class="fine" role="status"></p>
+      </form>
+      <button class="ghost closeSheetBtn" type="button">Đóng</button>
+    </div>
 
-            // Đăng nhập trực tiếp bằng khối JSON copy từ tab Response
-            function loginWithJson() {
-              const rawText = document.getElementById('jsonInput').value.trim();
-              if (!rawText) return alert('Bạn chưa dán dữ liệu JSON từ tab Response!');
-              try {
-                const parsed = JSON.parse(rawText);
-                const u = parsed.user || parsed;
-                if (!u.idToken || !u.localId) {
-                  return alert('Đoạn JSON bị thiếu idToken hoặc localId. Hãy nhấn Ctrl+A và Ctrl+C copy toàn bộ khung Response!');
-                }
-                authData = {
-                  idToken: u.idToken,
-                  refreshToken: u.refreshToken || "",
-                  localId: u.localId,
-                  email: u.email || "",
-                  displayName: u.displayName || u.email || "Yang Lee"
-                };
-                localStorage.setItem('locket_auth', JSON.stringify(authData));
-                updateAuthUI();
-                alert('🎉 Đã kết nối thành công tài khoản: ' + authData.displayName);
-              } catch (err) {
-                alert('Định dạng JSON chưa đúng! Hãy chắc chắn bạn đã copy từ dấu ngoặc nhọn đầu tiên { đến dấu } cuối cùng.');
-              }
-            }
+    <!-- 3. MODAL KHUNG ẢNH -->
+    <div id="frameSheet" class="sheet hidden">
+      <h3>Khung Viền Ảnh ▢</h3>
+      <div class="chips" style="flex-wrap:wrap;margin:12px 0;">
+        <button type="button" class="choice on" data-frame="none">Không viền</button>
+        <button type="button" class="choice" data-frame="polaroid">Polaroid</button>
+        <button type="button" class="choice" data-frame="film">Film Cổ Điển</button>
+        <button type="button" class="choice" data-frame="gold">Gold VIP</button>
+        <button type="button" class="choice" data-frame="heart">Trái Tim</button>
+        <button type="button" class="choice" data-frame="pastel">Pastel</button>
+        <button type="button" class="choice" data-frame="stars">Đêm Sao</button>
+        <button type="button" class="choice" data-frame="postcard">Bưu Thiếp</button>
+      </div>
+      <button id="uploadCustomFrameBtn" class="ghost" type="button" style="margin-top:8px;">📂 Tự tải khung viền PNG lên</button>
+      <button class="ghost closeSheetBtn" type="button" style="margin-top:8px;">Xong</button>
+    </div>
 
-            // Khởi tạo Camera
-            async function initCamera() {
-              if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-              }
-              try {
-                currentStream = await navigator.mediaDevices.getUserMedia({
-                  video: { facingMode: useFrontCamera ? 'user' : 'environment', width: { ideal: 1080 }, height: { ideal: 1080 } },
-                  audio: false
-                });
-                video.srcObject = currentStream;
-                video.classList.toggle('scale-x-[-1]', useFrontCamera);
-              } catch (err) {
-                console.warn('Lưu ý Camera:', err);
-              }
-            }
-            initCamera();
+    <!-- 4. MODAL ĐỐI TƯỢNG GỬI (AUDIENCE) -->
+    <div id="audienceSheet" class="sheet hidden">
+      <h3>Chọn Đối Tượng Gửi 👥</h3>
+      <div class="audience-options" style="margin:12px 0;">
+        <button type="button" class="choice on" data-audience="all" style="width:100%;text-align:left;margin-bottom:8px;">👥 Tất cả bạn bè</button>
+        <button type="button" class="choice" data-audience="private" style="width:100%;text-align:left;margin-bottom:8px;">🔒 Chỉ mình tôi</button>
+        <button type="button" class="choice" data-audience="selected" style="width:100%;text-align:left;margin-bottom:8px;">⭐ Chọn bạn thân riêng...</button>
+      </div>
+      <div id="friendCheckList" class="friend-checklist hidden"></div>
+      <button class="primary closeSheetBtn" type="button" style="margin-top:12px;">Áp dụng</button>
+    </div>
 
-            function switchCamera() {
-              useFrontCamera = !useFrontCamera;
-              initCamera();
-            }
+    <!-- 5. MODAL THEMES (14 THEMES UNLOCKED) -->
+    <div id="themeSheet" class="sheet hidden">
+      <h3>Chọn Chủ Đề Locket Gold 🎨</h3>
+      <p class="fine" style="text-align:left;margin-top:0;">Đã mở khóa toàn bộ 14 giao diện màu sắc</p>
+      <div class="grid-2" style="margin:12px 0;">
+        <button type="button" class="choice" data-theme-name="default">⚫ Mặc định</button>
+        <button type="button" class="choice on" data-theme-name="gold">💛 Gold VIP</button>
+        <button type="button" class="choice" data-theme-name="hot-to-go">🔥 Hot To Go</button>
+        <button type="button" class="choice" data-theme-name="sunrise">🌅 Bình minh</button>
+        <button type="button" class="choice" data-theme-name="jewels">💎 Trang sức</button>
+        <button type="button" class="choice" data-theme-name="morning-dew">💧 Sương mai</button>
+        <button type="button" class="choice" data-theme-name="sea">🌊 Biển xanh</button>
+        <button type="button" class="choice" data-theme-name="neptune">🪐 Neptune</button>
+        <button type="button" class="choice" data-theme-name="dreamy-purple">💜 Tím mộng mơ</button>
+        <button type="button" class="choice" data-theme-name="orbit">🌌 Quỹ đạo</button>
+        <button type="button" class="choice" data-theme-name="pink-candy">🍬 Kẹo hồng</button>
+        <button type="button" class="choice" data-theme-name="cloud">☁️ Mây trắng</button>
+        <button type="button" class="choice" data-theme-name="crystal">✨ Pha lê</button>
+        <button type="button" class="choice" data-theme-name="midnight">🌙 Nửa đêm</button>
+      </div>
+      <button class="ghost closeSheetBtn" type="button">Xong</button>
+    </div>
+  </div>
 
-            function applyLiveFilter() {
-              video.style.filter = document.getElementById('filterSelect').value;
-            }
-
-            // Cắt ảnh vuông 1:1 chính giữa và chống lật ngược chữ khi dùng Camera trước
-            function drawVideoSquare(targetX, targetY, targetW, targetH) {
-              const vw = video.videoWidth || 1080;
-              const vh = video.videoHeight || 1080;
-              const size = Math.min(vw, vh);
-              const sx = (vw - size) / 2;
-              const sy = (vh - size) / 2;
-
-              ctx.save();
-              ctx.filter = document.getElementById('filterSelect').value;
-              if (useFrontCamera) {
-                ctx.translate(targetX + targetW, targetY);
-                ctx.scale(-1, 1);
-                ctx.drawImage(video, sx, sy, size, size, 0, 0, targetW, targetH);
-              } else {
-                ctx.drawImage(video, sx, sy, size, size, targetX, targetY, targetW, targetH);
-              }
-              ctx.restore();
-            }
-
-            function captureSingle() {
-              drawVideoSquare(0, 0, 1080, 1080);
-              hasCaptured = true;
-              video.classList.add('hidden');
-              canvas.classList.remove('hidden');
-            }
-
-            // Chụp Photobooth 4 tấm liên tiếp ghép lưới 2x2
-            async function startPhotobooth() {
-              const countEl = document.getElementById('countdown');
-              const frameColor = document.getElementById('frameColor').value;
-              const stickerText = document.getElementById('stickerSelect').value;
-
-              video.classList.remove('hidden');
-              canvas.classList.add('hidden');
-
-              ctx.save();
-              ctx.fillStyle = frameColor;
-              ctx.fillRect(0, 0, 1080, 1080);
-              ctx.restore();
-
-              const slots = [
-                { x: 45, y: 45, w: 470, h: 450 },
-                { x: 565, y: 45, w: 470, h: 450 },
-                { x: 45, y: 515, w: 470, h: 450 },
-                { x: 565, y: 515, w: 470, h: 450 }
-              ];
-
-              for (let i = 0; i < 4; i++) {
-                countEl.classList.remove('hidden');
-                for (let c = 3; c > 0; c--) {
-                  countEl.innerText = c;
-                  await new Promise(r => setTimeout(r, 750));
-                }
-                countEl.innerText = "📸";
-                drawVideoSquare(slots[i].x, slots[i].y, slots[i].w, slots[i].h);
-                await new Promise(r => setTimeout(r, 350));
-              }
-
-              // In nhãn Sticker và ngày tháng dưới chân khung Photobooth
-              ctx.save();
-              ctx.fillStyle = '#FFFFFF';
-              ctx.font = 'bold 30px sans-serif';
-              ctx.textAlign = 'center';
-              const dateStr = new Date().toLocaleDateString('vi-VN');
-              ctx.fillText(`${stickerText}  •  ${dateStr}`, 540, 1030);
-              ctx.restore();
-
-              hasCaptured = true;
-              countEl.classList.add('hidden');
-              video.classList.add('hidden');
-              canvas.classList.remove('hidden');
-            }
-
-            // Chọn ảnh có sẵn từ máy
-            function uploadFromGallery(e) {
-              const file = e.target.files[0];
-              if (!file) return;
-              const img = new Image();
-              img.onload = () => {
-                const size = Math.min(img.width, img.height);
-                const sx = (img.width - size) / 2;
-                const sy = (img.height - size) / 2;
-                ctx.save();
-                ctx.filter = document.getElementById('filterSelect').value;
-                ctx.drawImage(img, sx, sy, size, size, 0, 0, 1080, 1080);
-                ctx.restore();
-                hasCaptured = true;
-                video.classList.add('hidden');
-                canvas.classList.remove('hidden');
-              };
-              img.src = URL.createObjectURL(file);
-            }
-
-            function resetCamera() {
-              hasCaptured = false;
-              canvas.classList.add('hidden');
-              video.classList.remove('hidden');
-            }
-
-            async function login() {
-              const email = document.getElementById('email').value.trim();
-              const password = document.getElementById('password').value;
-              if (!email || !password) return alert('Vui lòng nhập đủ Email và Mật khẩu');
-
-              const btn = document.getElementById('loginBtn');
-              btn.innerText = 'Đang xác thực...';
-              const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-              });
-              const data = await res.json();
-              btn.innerText = 'Đăng nhập';
-
-              if (data.idToken) {
-                authData = data;
-                localStorage.setItem('locket_auth', JSON.stringify(data));
-                updateAuthUI();
-              } else {
-                alert('Lỗi: ' + data.error);
-              }
-            }
-
-            function logout() {
-              localStorage.removeItem('locket_auth');
-              authData = null;
-              updateAuthUI();
-            }
-
-            async function sendToLocket() {
-              if (!authData) return alert('Bạn cần dán JSON kích hoạt tài khoản trước!');
-              if (!hasCaptured) captureSingle();
-
-              const btn = document.getElementById('sendBtn');
-              btn.innerText = '⏳ Đang bắn lên Locket...';
-              btn.disabled = true;
-
-              // Thử gia hạn token nếu server có cấu hình LOCKET_API_KEY
-              if (authData.refreshToken) {
-                try {
-                  const refRes = await fetch('/api/refresh', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ refreshToken: authData.refreshToken })
-                  });
-                  if (refRes.ok) {
-                    const refData = await refRes.json();
-                    if (refData.idToken) {
-                      authData.idToken = refData.idToken;
-                      authData.refreshToken = refData.refreshToken;
-                      localStorage.setItem('locket_auth', JSON.stringify(authData));
-                    }
-                  }
-                } catch (e) {}
-              }
-
-              const imageBase64 = canvas.toDataURL('image/webp', 0.92);
-              const res = await fetch('/api/post-moment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  idToken: authData.idToken,
-                  localId: authData.localId,
-                  imageBase64,
-                  overlayType: document.getElementById('overlayType').value,
-                  caption: document.getElementById('caption').value,
-                  bgColorStart: document.getElementById('bgStart').value,
-                  bgColorEnd: document.getElementById('bgEnd').value,
-                  textColor: document.getElementById('textColor').value
-                })
-              });
-
-              const data = await res.json();
-              btn.innerText = '🚀 Bắn lên Widget Locket';
-              btn.disabled = false;
-
-              if (data.success) {
-                alert('🎉 Đã bắn ảnh lên Widget Locket thành công!');
-                resetCamera();
-              } else {
-                alert('Lỗi khi đăng ảnh: ' + JSON.stringify(data.error));
-              }
-            }
-    </script>
+  <script type="module" src="/app.js"></script>
 </body>
 </html>

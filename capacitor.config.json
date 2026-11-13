@@ -1,0 +1,7 @@
+{
+  "appId": "com.yanglestudio.locket",
+  "appName": "Locket Studio",
+  "webDir": "mobile-dist",
+  "ios": { "contentInset": "automatic", "preferredContentMode": "mobile" },
+  "plugins": { "SplashScreen": { "launchAutoHide": true } }
+}

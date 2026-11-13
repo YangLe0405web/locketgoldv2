@@ -1,2 +1,14 @@
-﻿node_modules/
+node_modules/
 .vs/
+certs/
+.env
+.superpowers/
+.reference-locketlam/
+.venv-local-ai/
+.local-ai-cache/
+.local-ai-temp/
+scripts/__pycache__/
+mobile-dist/
+mobile/generated-routes.js
+.tools/
+artifacts/

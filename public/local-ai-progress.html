@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tiến độ AI hóa trang</title>
+  <style>
+    * { box-sizing: border-box } body { margin: 0; background: #111114; color: #fafafa; font: 16px/1.6 system-ui, sans-serif; padding: 40px 20px }
+    main { max-width: 660px; margin: auto } h1 { font-size: clamp(26px,5vw,38px); line-height: 1.2 } .card { background: #222226; border: 1px solid #36363c; border-radius: 24px; padding: 24px; margin: 20px 0 }
+    .muted { color: #b8b8c3 } .tag { color: #86e6b5; font-weight: 650 } .number { font-size: 56px; font-weight: 750; color: #ffda53; margin: 4px 0 }
+    progress { width: 100%; height: 18px; accent-color: #ffda53 } a { color: #ffda53 } .button { display: inline-block; background: #ffda53; color: #191919; text-decoration: none; padding: 12px 24px; border-radius: 30px; font-weight: 700 }
+    li { margin: 12px 0 } #connection { min-height: 26px }
+  </style>
+</head>
+<body><main>
+  <p class="muted">LOCKET STUDIO · CÀI ĐẶT TRÊN MÁY</p>
+  <h1>🎅 Noel &amp; 🛞 Người lốp xe</h1>
+  <div class="card">
+    <span class="tag">✓ Mẫu ghép đã có trong app</span>
+    <p>Ghép mũ, râu, áo Noel hoặc bộ lốp xe vào ảnh. Mở <strong>Tạo diện mạo → Ghép hóa trang</strong> để thử; không cần chờ tải bộ AI.</p>
+    <a class="button" href="/">Mở Locket</a>
+  </div>
+  <div class="card" aria-live="polite">
+    <h2>AI biến hình toàn ảnh</h2>
+    <p id="stage">Đang kiểm tra tiến độ…</p>
+    <div id="percent" class="number">—</div>
+    <progress id="bar" max="100" value="0" aria-label="Tiến độ tải thư viện GPU"></progress>
+    <p id="detail" class="muted">Phần trăm này chỉ tính gói GPU 2,53 GB, không phải toàn bộ quá trình cài AI.</p>
+    <ol>
+      <li id="gpu">Tải thư viện GPU</li>
+      <li><strong id="libraries">Cài thư viện AI</strong>
+        <progress id="libraryBar" max="6" value="0" aria-label="Số thư viện đã cài"></progress>
+        <div id="libraryDetail" class="muted">Đang kiểm tra…</div>
+      </li>
+      <li><strong id="model">Tải mô hình chỉnh ảnh</strong>
+        <progress id="modelBar" max="100" value="0" aria-label="Trạng thái tải mô hình"></progress>
+        <div id="modelDetail" class="muted">Đang kiểm tra…</div>
+      </li>
+      <li id="ready">Hoàn tất cài đặt — có thể thử tạo ảnh</li>
+    </ol>
+    <p id="connection" class="muted"></p>
+  </div>
+  <p class="muted">Tự cập nhật mỗi 3 giây. Giữ máy bật và kết nối mạng. Đóng trang này không dừng tải.</p>
+</main>
+<script>
+  let previousPercent = null;
+  let lastChange = Date.now();
+  async function refresh() {
+    try {
+      const response = await fetch('/api/local-ai/status', { cache: 'no-store', signal: AbortSignal.timeout(5000) });
+      if (!response.ok) throw new Error('status');
+      const data = await response.json();
+      const p = Math.max(0, Math.min(100, Number(data.downloadPercent) || 0));
+      if (p !== previousPercent) { lastChange = Date.now(); previousPercent = p; }
+      document.getElementById('percent').textContent = data.ready ? 'Đã cài xong' : p + '%';
+      document.getElementById('bar').value = p;
+      document.getElementById('stage').textContent = data.ready ? 'Bộ AI đã cài xong. Bạn có thể quay lại app để thử biến hình.' : p < 100 ? 'Tiến độ tải gói GPU' : 'Gói GPU đã tải đủ; chưa hoàn tất cài thư viện và mô hình.';
+      document.getElementById('gpu').textContent = (p === 100 ? '✓ ' : '↓ ') + 'Tải thư viện GPU: ' + p + '%';
+      const libs = data.libraries;
+      if (libs) {
+        const complete = libs.installed.length === libs.total;
+        document.getElementById('libraries').textContent = `${complete ? '✓' : '↓'} Cài thư viện AI: ${libs.installed.length}/${libs.total} gói`;
+        document.getElementById('libraryBar').max = libs.total;
+        document.getElementById('libraryBar').value = libs.installed.length;
+        document.getElementById('libraryDetail').textContent = (libs.installed.length ? 'Đã cài: ' + libs.installed.join(', ') + '. ' : '') + (libs.pending.length ? 'Còn lại: ' + libs.pending.join(', ') + '.' : 'Đã đủ thư viện chính.');
+      }
+      const model = data.model;
+      const modelBar = document.getElementById('modelBar');
+      document.getElementById('model').textContent = data.ready ? '✓ Đã tải và nạp mô hình' : model?.started ? '↓ Đang chuẩn bị/tải mô hình' : '○ Tải mô hình: chờ cài thư viện xong';
+      if (data.ready) modelBar.value = 100;
+      else if (model?.started) modelBar.removeAttribute('value');
+      else modelBar.value = 0;
+      document.getElementById('modelDetail').textContent = model?.started
+        ? `Dữ liệu trong bộ nhớ đệm: ${(model.bytes / 1024 / 1024).toFixed(1)} MB · ${model.files} tệp tải xong. ${data.ready ? '' : 'Chưa có tổng dung lượng chính xác nên không hiển thị % ước đoán.'}`
+        : 'Bước này sẽ tự chạy sau khi cài thư viện. Không cần bấm tải thêm.';
+      if (!data.ready && model?.state === 'failed') {
+        document.getElementById('model').textContent = '⚠ Tải mô hình bị gián đoạn sau nhiều lần thử';
+        modelBar.value = 0;
+      } else if (!data.ready && model?.state === 'downloading') {
+        document.getElementById('model').textContent = `↓ Đang tiếp tục tải mô hình — lượt ${model.attempt}/5`;
+      }
+      if (!data.ready && model?.lastWrite) {
+        document.getElementById('modelDetail').textContent += ' Ghi dữ liệu gần nhất: ' + new Date(model.lastWrite).toLocaleTimeString('vi-VN') + '.';
+        if (Date.now() - model.lastWrite > 120000 && model.state !== 'failed') {
+          document.getElementById('modelDetail').textContent += ' Chưa ghi thêm dữ liệu hơn 2 phút; đang chờ mạng hoặc xử lý tệp.';
+        }
+      }
+      document.getElementById('ready').textContent = data.ready ? '✓ Có thể thử tạo ảnh bằng AI trên máy' : '○ AI chưa sẵn sàng';
+      document.getElementById('connection').textContent = 'Cập nhật lúc ' + new Date().toLocaleTimeString('vi-VN') + (!data.ready && p < 100 && Date.now() - lastChange > 90000 ? ' · Chưa tăng phần trăm trong hơn 90 giây; có thể mạng chậm hoặc tải bị gián đoạn.' : '');
+    } catch (_) {
+      document.getElementById('connection').textContent = 'Chưa kết nối được Studio. Đang thử lại; số liệu hiển thị có thể đã cũ.';
+    } finally { setTimeout(refresh, 3000); }
+  }
+  refresh();
+</script>
+</body>
+</html>
