@@ -1486,12 +1486,14 @@ export function initAppUi() {
     async function updateTransformMode() {
         const local = transformStyle.value.startsWith('local-');
         const device = transformStyle.value.startsWith('device-');
+        const native = Boolean(window.studioNativeMode);
         const reference = transformStyle.value === 'reference';
         transformReference.hidden = !reference;
         transformReference.disabled = !reference;
         document.querySelector('label[for="transformReference"]').hidden = !reference;
         document.getElementById('transformModeHint').textContent = local
             ? 'Xử lý ngay trên máy, không cần Gemini hay API key. Lần đầu cần mạng để tải bộ nhận diện khuôn mặt.'
+            : native ? 'AI Core ML xử lý ngay trên iPhone. Cần tải mô hình lần đầu; có thể mất vài phút và làm thay đổi nét mặt. Giữ app mở khi tạo ảnh.'
             : device ? 'AI xử lý trên máy tính, không gửi ảnh tới Gemini. Có thể mất vài phút và có thể làm thay đổi nét mặt. Dùng ảnh thấy rõ mặt và phần thân.'
             : 'Kiểu này dùng AI tạo ảnh: cần API có hạn mức và gửi ảnh tới dịch vụ AI. Chọn nhóm Trên máy nếu không muốn dùng API.';
         transformForm.querySelector('[type="submit"]').textContent = local ? 'Áp dụng trên máy' : device ? 'Biến hình bằng AI trên máy' : 'Tạo ảnh bằng AI';
@@ -1500,7 +1502,7 @@ export function initAppUi() {
                 const response = await fetch('/api/local-ai/status');
                 const status = await response.json();
                 if (transformStyle.value.startsWith('device-') && !status.ready) {
-                    document.getElementById('transformModeHint').textContent = `AI cục bộ chưa cài xong. Gói GPU đã tải ${status.downloadPercent}%; sau đó còn tải mô hình. Bạn có thể dùng nhóm Ghép hóa trang trước.`;
+                    document.getElementById('transformModeHint').textContent = native ? status.message || 'Bấm Tải AI về iPhone trước.' : `AI cục bộ chưa cài xong. Gói GPU đã tải ${status.downloadPercent}%; sau đó còn tải mô hình. Bạn có thể dùng nhóm Ghép hóa trang trước.`;
                 }
             } catch (_) {
                 if (transformStyle.value.startsWith('device-')) document.getElementById('transformModeHint').textContent = 'Chưa kiểm tra được AI cục bộ. Kiểm tra server hoặc dùng Ghép hóa trang trước.';

@@ -6,6 +6,7 @@ import WordArray from 'crypto-js/lib-typedarrays.js';
 import { registerRoutes } from './generated-routes.js';
 
 const Native = registerPlugin('StudioNative');
+window.studioNativeMode = true;
 const nativeFetch = window.fetch.bind(window);
 const cryptoAdapter = {
     randomUUID: () => crypto.randomUUID(),
@@ -75,6 +76,9 @@ document.addEventListener('click', async event => {
 }, true);
 // Import once after DOM has loaded; app.js then has no pending DOMContentLoaded listener.
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded',resolve,{once:true}));
+document.querySelectorAll('a[href="/install.mobileconfig"]').forEach(link=>link.remove());
+document.querySelector('#transformStyle option[value="reference"]')?.remove();
+document.querySelector('#transformStyle optgroup[label="AI tạo ảnh — cần API và hạn mức"]')?.setAttribute('label','AI Core ML trên iPhone');
 const box = document.createElement('div'); box.className='fine';
 box.innerHTML='<button type="button" class="ghost" id="nativeModelDownload">Tải AI miễn phí về iPhone (~1,6 GB)</button><p id="nativeModelState">AI chạy trên iPhone, cần giữ app mở khi tải và tạo ảnh. Chất lượng có thể thay đổi nét mặt.</p>';
 document.getElementById('transformForm').prepend(box);
