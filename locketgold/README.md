@@ -1,0 +1,174 @@
+<p align="center">
+  <img src="./assets/banner.png?v=2" alt="Nâng Locket Gold bằng Shadowrocket - Lê Hoàng Giang" width="100%">
+</p>
+
+# 💛 Gói Locket Gold VIP - Lê Hoàng Giang (LocketGoldGiangLe)
+
+> **Gói Locket Free mở khóa Locket Gold VIP vĩnh viễn & Chống thu hồi chứng chỉ Apple**  
+> 🌐 Website: [LocketGoldGiangLe](https://github.com/YangLe0405web/locketgoldv2) | 📢 Kênh hỗ trợ: [Telegram @Giangdev_it](https://t.me/Giangdev_it)  
+> 🛠 Phát hành bởi: **Lê Hoàng Giang**  
+> 📦 Repository: [YangLe0405web/locketgoldv2](https://github.com/YangLe0405web/locketgoldv2) | 🌿 Nhánh: `shadowrocket`
+
+---
+
+## 🌟 Giới thiệu
+
+**LocketGold** là bộ giải pháp mở khóa gói Locket Free chuyên nghiệp do **Lê Hoàng Giang** phát triển, tinh gọn **100% dành riêng cho ứng dụng Locket**, loại bỏ toàn bộ các thành phần dư thừa của các ứng dụng khác giúp hệ thống hoạt động nhẹ nhất, mượt nhất và ổn định nhất.
+
+Mọi tính năng VIP của Locket Gold đều được mở khóa toàn diện từ giao diện, camera, dung lượng bộ nhớ cho tới các quyền hạn cao cấp trên hệ thống. Kèm theo đó là giải pháp **Máy chủ DNS DoH Chống thu hồi riêng biệt từ LocketGold** không giới hạn lượt truy vấn, giúp bạn giữ trạng thái Gold vĩnh viễn mà không cần phải bật VPN liên tục.
+
+---
+
+## ✨ Danh sách tính năng mở khóa (Full Features)
+
+| Nhóm tính năng | Chi tiết tính năng mở khóa |
+| :--- | :--- |
+| **Gói VIP** | Mở khóa gói đăng ký **Locket Gold VIP 1 năm** (Gia hạn tự động vĩnh viễn đến năm 9999). |
+| **Hồ sơ & Huy hiệu** | Huy hiệu vàng **Gold Badge** hiển thị trên trang cá nhân và bài đăng. |
+| **Giao diện & Icon** | Toàn quyền chọn tất cả **App Icon** độc quyền và **Chủ đề máy ảnh (Camera Themes)**. |
+| **Đăng tải & Camera** | Tải ảnh trực tiếp từ **Album/Thư viện (Camera Roll)** không giới hạn, quay video dài hơn. |
+| **Tương tác & Xem** | Mở khóa tính năng **Locket Views** (Biết chính xác ai đã xem bài đăng Locket của bạn). |
+| **Chú thích & Bạn bè** | Viết **chú thích dài (Long Captions)** không bị giới hạn ký tự; kết bạn không giới hạn số lượng. |
+| **Tiện ích (Widgets)** | Toàn quyền sử dụng tất cả **Khung viền Widget (Custom Widget Frames)** cao cấp. |
+| **Chuỗi bạn bè** | Tự động kích hoạt tính năng **Khôi phục chuỗi (Streak Recovery)** khi lỡ quên gửi locket. |
+| **Trải nghiệm** | **Xóa sạch 100% quảng cáo** và các pop-up mời chào mua gói phiền phức. |
+
+---
+
+## 🚀 Cài đặt nhanh 1-Click (Dành cho iOS)
+
+> 💡 **Mẹo:** Trên Safari iPhone, bấm trực tiếp vào liên kết **1-Click** bên dưới để thiết bị tự động chuyển hướng và mở ứng dụng **Shadowrocket** nạp cấu hình ngay lập tức!
+> 
+> 🌐 Hoặc mở giao diện cài đặt nhanh chuyên biệt tại: **[👉 Mở Trang Web Cài Đặt (Web Installer)](https://raw.githack.com/YangLe0405web/locketgoldv2/main/index.html)**
+
+### 📲 1-Click Mở Ngay Trong Shadowrocket:
+
+* ⚡ **Cài đặt Module (Khuyên dùng):**  
+  [👉 Bấm vào đây để cài Module Locket Gold](https://raw.githack.com/YangLe0405web/locketgoldv2/main/module.html)
+* 🚀 **Thêm Cấu hình Config:**  
+  [👉 Bấm vào đây để thêm Config Locket](https://raw.githack.com/YangLe0405web/locketgoldv2/main/conf.html)
+
+---
+
+### 🛡️ Tải Hồ Sơ DNS Chống Thu Hồi Về iPhone:
+
+> 💡 **Cách dùng:** Bấm vào liên kết bên dưới bằng trình duyệt **Safari** trên iPhone. Hệ thống sẽ tự động tải về file cấu hình `.mobileconfig` và hiện thông báo **"Đã tải về hồ sơ"**. Sau đó bạn chỉ cần vào **Cài đặt ➔ Đã tải về hồ sơ ➔ Cài đặt** là xong!
+
+* 📲 **Tải Profile DNS Tự Động (.mobileconfig):**  
+  [👉 Bấm vào đây để tải locketgold.mobileconfig về iPhone](https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locketgold.mobileconfig)
+
+---
+
+### 📋 Bảng Sao Chép Thủ Công (Dán vào Tab Cấu Hình / Module):
+
+| Mục cài đặt | Thao tác 1-Click | Link chép thủ công |
+| :--- | :--- | :--- |
+| **Module Locket (.sgmodule)** | [⚡ Cài đặt Module](https://raw.githack.com/YangLe0405web/locketgoldv2/main/module.html) | `https://raw.githubusercontent.com/YangLe0405web/locketgoldv2/main/locketgold.sgmodule` |
+| **Config Locket (.conf)** | [🚀 Thêm Config](https://raw.githack.com/YangLe0405web/locketgoldv2/main/conf.html) | `https://raw.githubusercontent.com/YangLe0405web/locketgoldv2/main/locketgold.conf` |
+| **Hồ sơ DNS (.mobileconfig)** | [🛡️ Tải Profile DNS](https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locketgold.mobileconfig) | `https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locketgold.mobileconfig` |
+
+---
+
+
+## 📖 Hướng dẫn chi tiết bằng hình ảnh từ A - Z (7 Bước)
+
+### Bước 1: Tải và cài đặt ứng dụng Shadowrocket
+- Mở App Store trên iPhone, tìm kiếm từ khóa `Shadowrocket` và bấm tải về.
+- *(Nếu chưa có tài khoản đã mua Shadowrocket, bạn có thể tìm kiếm các tài khoản chia sẻ miễn phí trên mạng hoặc cài đặt qua tệp IPA).*
+
+![Bước 1: Tải Shadowrocket](./assets/steps/step1_download.jpg)
+
+---
+
+### Bước 2: Thêm Module hoặc Cấu hình vào Shadowrocket
+- Bấm vào nút cài đặt nhanh ở mục **Cài đặt nhanh 1-Click** phía trên trình duyệt iPhone.
+- Hệ thống sẽ hiện hộp thoại xác nhận **Mở trong “Shadowrocket”?** ➔ Bấm **Mở**.
+- Trong Shadowrocket: cấu hình `locketgold.conf` đã được thêm tự động, chạm vào và bấm **Sử dụng Config**.
+
+![Bước 2: Thêm cấu hình](./assets/steps/step2_add_config.jpg)
+
+---
+
+### Bước 3: Kích hoạt Giải mã HTTPS (HTTPS Decryption)
+- Tại tab **Cấu hình**, bấm vào biểu tượng chữ **(i)** màu xanh bên cạnh file cấu hình `locketgold.conf`.
+- Tìm đến mục **Giải mã HTTPS (HTTPS Decryption)** và gạt công tắc sang **BẬT (Màu xanh)**.
+
+![Bước 3: Bật Giải mã HTTPS](./assets/steps/step3_enable_https.jpg)
+
+---
+
+### Bước 4: Tạo và tải Chứng chỉ CA mới
+- Trong mục Chứng chỉ CA: bấm vào dòng **Tạo Chứng chỉ CA mới** ➔ Bấm xác nhận **Tạo Chứng chỉ CA mới**.
+- Bấm tiếp dòng **Cài đặt Chứng chỉ CA vào hệ thống** ➔ Trình duyệt Safari sẽ hiện thông báo, bấm **Cho phép** để tải hồ sơ chứng chỉ về máy.
+
+![Bước 4: Tạo và tải Chứng chỉ CA](./assets/steps/step4_generate_ca.jpg)
+
+---
+
+### Bước 5: Cài đặt hồ sơ chứng chỉ vào iPhone
+- Mở ứng dụng **Cài đặt** của iPhone ➔ Chọn mục **Đã tải về hồ sơ** ở trên cùng (hoặc vào **Cài đặt chung ➔ Quản lý VPN & thiết bị**).
+- Chọn hồ sơ chứng chỉ Shadowrocket vừa tải về ➔ Bấm nút **Cài đặt** ở góc trên bên phải màn hình và nhập mật mã máy nếu có.
+
+![Bước 5: Cài đặt hồ sơ vào iPhone](./assets/steps/step5_install_profile.jpg)
+
+---
+
+### Bước 6: Bật quyền tin cậy chứng nhận gốc
+> ⚠️ **LƯU Ý:** Đây là bước quan trọng nhất để Shadowrocket có thể kích hoạt được Locket Gold!
+
+- Vào **Cài đặt ➔ Cài đặt chung ➔ Giới thiệu**.
+- Kéo xuống dưới cùng, chọn dòng **Cài đặt tin cậy chứng nhận**.
+- Tại mục *Bật tin cậy đầy đủ cho chứng nhận gốc*, gạt công tắc chứng chỉ **Shadowrocket** sang **BẬT (Màu xanh)** ➔ Hiện bảng cảnh báo, bấm **Tiếp tục**.
+
+![Bước 6: Bật tin cậy chứng chỉ](./assets/steps/step6_trust_cert.jpg)
+
+---
+
+### Bước 7: Bật kết nối VPN và tận hưởng Locket Gold
+- Quay lại ứng dụng Shadowrocket, tại tab **Nhà (Home)** ở thanh dưới cùng:
+- Gạt công tắc kết nối ở trên cùng sang **BẬT** ➔ Hiện bảng xác nhận, bấm **Kết nối** (hiện biểu tượng VPN trên thanh trạng thái).
+- **Vuốt tắt hẳn ứng dụng Locket từ danh sách đa nhiệm** (không để app chạy ngầm), sau đó mở lại app Locket.
+- Tài khoản của bạn đã được kích hoạt **Locket Gold VIP 💛** thành công!
+
+![Bước 7: Bật kết nối VPN](./assets/steps/step7_connect_vpn.jpg)
+
+---
+
+### 🛡 Bước phụ: Chống thu hồi vĩnh viễn (Không cần bật VPN)
+Sau khi Locket đã lên Gold thành công, nếu bạn không muốn bật VPN Shadowrocket liên tục làm tốn pin:
+1. Bạn có thể **tắt VPN Shadowrocket đi**.
+2. Mở trình duyệt Safari trên iPhone, bấm nút **Tải Cấu Hình DNS Chống Thu Hồi** ở bảng cài đặt nhanh hoặc mở file `locketgold.mobileconfig`.
+3. Vào **Cài đặt ➔ Đã tải về hồ sơ ➔ Cài đặt**.
+4. Vào **Cài đặt ➔ Cài đặt chung ➔ VPN & Quản lý thiết bị ➔ DNS ➔ Chọn "Locket Gold DNS (Lê Hoàng Giang)"**.
+5. Bây giờ Locket Gold sẽ được giữ vĩnh viễn trên iPhone của bạn mà không cần bật VPN nữa!
+
+---
+
+## ❓ Câu hỏi thường gặp (FAQ)
+
+<details>
+<summary><b>1. Tôi đã làm theo hướng dẫn nhưng vào Locket vẫn chưa có Gold?</b></summary>
+- Kiểm tra xem bạn đã bật tin cậy chứng chỉ ở <i>Cài đặt ➔ Cài đặt chung ➔ Giới thiệu ➔ Cài đặt tin cậy chứng nhận</i> chưa.<br>
+- Đảm bảo đã vuốt tắt hẳn app Locket chạy ngầm trước khi mở lại.<br>
+- Vào Cài đặt trong Locket bấm nút "Khôi phục gói mua" (Restore Purchase).
+</details>
+
+<details>
+<summary><b>2. Dùng DNS chống thu hồi này mạng có bị chậm hay lag không?</b></summary>
+Hoàn toàn không! Cấu hình sử dụng công nghệ <b>Split DNS</b>, chỉ định tuyến duy nhất các yêu cầu kiểm tra của Locket về máy chủ DoH riêng do <b>Lê Hoàng Giang</b> vận hành, không bị giới hạn 300.000 lượt truy vấn, không lag, còn toàn bộ mạng lướt web, Facebook, TikTok, YouTube... vẫn dùng 100% mạng gốc tốc độ cao.
+</details>
+
+<details>
+<summary><b>3. Tôi có thể chia sẻ cho bạn bè dùng cùng không?</b></summary>
+Có! Gói Locket Free này được cấu hình trên máy chủ DoH riêng của Lê Hoàng Giang (chuẩn RFC 8484) không giới hạn số lượng truy vấn, bạn có thể gửi link này cho bất kỳ ai sử dụng hoàn toàn miễn phí.
+</details>
+
+---
+
+## 👨‍💻 Thông tin phát triển
+
+- **Bản quyền & Phát triển:** Gói Locket Free do [Lê Hoàng Giang](https://github.com/YangLe0405web/locketgoldv2) phát hành
+- **Mã Nguồn Gốc:** [duyvinh09](https://github.com/duyvinh09/Module_IOS/)
+- **Website chính thức:** [LocketGoldGiangLe](https://github.com/YangLe0405web/locketgoldv2)
+- **Kênh thông báo & Hỗ trợ:** [Telegram @Giangdev_it](https://t.me/Giangdev_it)
+- **Giấy phép:** Được phát hành miễn phí cho cộng đồng người dùng iOS. Nghiêm cấm mọi hành vi sao chép nhằm mục đích thương mại.

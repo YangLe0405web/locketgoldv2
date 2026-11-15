@@ -1,0 +1,22 @@
+# Giữ các file mã nguồn chưa mã hóa ở máy cục bộ, tuyệt đối không đẩy lên GitHub
+/locketlam.js
+/locket_profile.js
+/deleteHeader.js
+/locket_remote.js
+*.xml
+locketlam.xml
+locketlam/locketlam.xml
+certs/
+sign_profile.py
+*_signed.mobileconfig
+
+# Cache & node
+node_modules/
+*.log
+khoindvn.mobileconfig
+scratch/
+.vs/
+.vscode/
+.idea/
+__pycache__/
+*.pyc
