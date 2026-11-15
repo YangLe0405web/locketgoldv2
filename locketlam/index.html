@@ -933,6 +933,12 @@
     
     <!-- 🎵 Floating Cyber Music Player (Đạt G Selection) -->
     <div id="cyberMusicPlayer" class="fixed bottom-5 left-5 z-40 font-sans">
+        <!-- Autoplay Hint (hiển thị khi trình duyệt tạm chặn phát âm thanh tự động) -->
+        <div id="autoplayHint" class="hidden absolute -top-9 left-2 items-center gap-1.5 px-3 py-1 rounded-full bg-ocean-950/95 border border-cyan-400/70 text-cyan-300 text-[11px] shadow-lg shadow-cyan-950/80 pointer-events-none animate-bounce">
+            <i data-feather="volume-2" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>Chạm bất kỳ đâu để bật nhạc Đạt G</span>
+        </div>
+
         <!-- Floating Mini Bar -->
         <div id="playerBar" class="flex items-center gap-3 bg-ocean-950/90 backdrop-blur-xl border border-cyan-500/40 hover:border-cyan-400/80 px-3 py-2 rounded-2xl shadow-glass shadow-cyan-900/40 transition-all duration-300">
             <!-- Spinning Disc -->
@@ -1118,8 +1124,15 @@
         var currentTrackIndex = 0;
         var audio = document.getElementById("bgAudio");
         var isPlaying = false;
+        var autoPlayArmed = true;
+        var playerInitialized = false;
 
         function initPlayer() {
+            if (playerInitialized) {
+                if (!isPlaying) startAutoPlay();
+                return;
+            }
+            playerInitialized = true;
             renderTrackList();
             loadTrack(0);
 
@@ -1135,6 +1148,69 @@
             audio.addEventListener("ended", function() {
                 nextTrack();
             });
+
+            // Tự động phát nhạc ngay khi khởi tạo
+            startAutoPlay();
+        }
+
+        function startAutoPlay() {
+            var promise = audio.play();
+            if (promise !== undefined) {
+                promise.then(function() {
+                    isPlaying = true;
+                    updatePlayUI();
+                    hideAutoplayHint();
+                }).catch(function(err) {
+                    // Browser Autoplay Policy chặn tự phát âm thanh khi chưa tương tác
+                    console.log("Autoplay policy: chờ tương tác người dùng...", err);
+                    showAutoplayHint();
+                    armInteractionAutoplay();
+                });
+            }
+        }
+
+        function armInteractionAutoplay() {
+            if (!autoPlayArmed) return;
+            var triggerAutoPlay = function() {
+                if (!isPlaying) {
+                    audio.play().then(function() {
+                        isPlaying = true;
+                        updatePlayUI();
+                        hideAutoplayHint();
+                    }).catch(function(e) {
+                        console.log("Play failed on gesture:", e);
+                    });
+                }
+                autoPlayArmed = false;
+                var events = ['click', 'touchstart', 'touchend', 'scroll', 'pointerdown', 'keydown'];
+                events.forEach(function(evt) {
+                    document.removeEventListener(evt, triggerAutoPlay, true);
+                    window.removeEventListener(evt, triggerAutoPlay, true);
+                });
+            };
+
+            var events = ['click', 'touchstart', 'touchend', 'scroll', 'pointerdown', 'keydown'];
+            events.forEach(function(evt) {
+                document.addEventListener(evt, triggerAutoPlay, { passive: true, capture: true, once: true });
+                window.addEventListener(evt, triggerAutoPlay, { passive: true, capture: true, once: true });
+            });
+        }
+
+        function showAutoplayHint() {
+            var hint = document.getElementById("autoplayHint");
+            if (hint) {
+                hint.classList.remove("hidden");
+                hint.classList.add("flex");
+                if (window.feather) feather.replace();
+            }
+        }
+
+        function hideAutoplayHint() {
+            var hint = document.getElementById("autoplayHint");
+            if (hint) {
+                hint.classList.add("hidden");
+                hint.classList.remove("flex");
+            }
         }
 
         function renderTrackList() {
@@ -1175,12 +1251,16 @@
         }
 
         function playAudio() {
-            audio.play().then(function() {
-                isPlaying = true;
-                updatePlayUI();
-            }).catch(function(err) {
-                console.log("Audio play error:", err);
-            });
+            var promise = audio.play();
+            if (promise !== undefined) {
+                promise.then(function() {
+                    isPlaying = true;
+                    updatePlayUI();
+                    hideAutoplayHint();
+                }).catch(function(err) {
+                    console.log("Audio play error:", err);
+                });
+            }
         }
 
         function pauseAudio() {
@@ -1244,6 +1324,11 @@
 
         document.addEventListener("DOMContentLoaded", function() {
             initPlayer();
+        });
+        window.addEventListener("load", function() {
+            if (!isPlaying) {
+                startAutoPlay();
+            }
         });
         initPlayer();
 
