@@ -408,6 +408,10 @@
                         <span>Mở Link Chuyển Hướng (module.html)</span>
                     </a>
                 </div>
+                <div class="text-[11px] text-cyan-200/90 bg-ocean-950/80 p-2.5 rounded-xl border border-cyan-500/30 flex items-start gap-2">
+                    <i data-feather="info" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>
+                    <span><strong>Cách kích hoạt:</strong> Sau khi Shadowrocket báo Cài đặt thành công, vào tab <strong>Cấu hình (Config)</strong> ➔ cuộn xuống mục <strong>Module</strong> ➔ đảm bảo công tắc module Locket đang <strong>BẬT</strong>.</span>
+                </div>
             </div>
 
             <!-- Action 2: Config Locket (.conf) -->
@@ -432,6 +436,10 @@
                         <span>Mở Link Chuyển Hướng (conf.html)</span>
                     </a>
                 </div>
+                <div class="text-[11px] text-emerald-200/90 bg-ocean-950/80 p-2.5 rounded-xl border border-emerald-500/30 flex items-start gap-2">
+                    <i data-feather="check-circle" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                    <span><strong>Cách kích hoạt:</strong> Sau khi thêm config, vào tab <strong>Cấu hình (Config)</strong> ➔ chạm vào <strong>locketgold.conf</strong> ➔ chọn <strong>Sử dụng cấu hình</strong> (để hiện dấu tích ✓ màu cam).</span>
+                </div>
             </div>
 
             <!-- Action 3: Hồ Sơ DNS Chống Thu Hồi (.mobileconfig) -->
@@ -449,12 +457,25 @@
                     </button>
                 </div>
                 <p class="text-xs text-gray-300 leading-relaxed">
-                    Bấm vào nút tải bên dưới bằng trình duyệt <strong>Safari trên iPhone</strong>. Hệ thống sẽ tự động tải file `.mobileconfig` và hiển thị thông báo <em>"Đã tải về hồ sơ"</em>. Sau đó vào <strong>Cài đặt ➔ Đã tải về hồ sơ ➔ Cài đặt</strong> là hoàn tất!
+                    Bấm vào nút tải bên dưới bằng trình duyệt <strong>Safari trên iPhone</strong>. Hệ thống sẽ tự động kích hoạt tải hồ sơ cấu hình chuẩn Apple. Sau đó vào <strong>Cài đặt ➔ Đã tải về hồ sơ ➔ Cài đặt</strong> là hoàn tất!
                 </p>
-                <a href="https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locketgold.mobileconfig" download="locketgold.mobileconfig" class="btn-glow-gold w-full text-black font-black py-4 px-6 rounded-xl shadow-xl flex items-center justify-center gap-2.5 text-base tracking-wide">
+                <a href="https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locketgold.mobileconfig" class="btn-glow-gold w-full text-black font-black py-4 px-6 rounded-xl shadow-xl flex items-center justify-center gap-2.5 text-base tracking-wide">
                     <i data-feather="download-cloud" class="w-5 h-5"></i>
                     <span>Tải Hồ Sơ locketgold.mobileconfig Về iPhone</span>
                 </a>
+                <div class="text-[11px] text-amber-200/90 bg-ocean-950/80 p-2.5 rounded-xl border border-amber-500/30 flex items-start gap-2">
+                    <i data-feather="alert-circle" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+                    <span><strong>Lưu ý Safari:</strong> Bấm tải ➔ Safari hỏi <em>"Trang web muốn tải về hồ sơ?"</em> ➔ bấm <strong>Cho phép</strong> ➔ vào <strong>Cài đặt iPhone ➔ Đã tải về hồ sơ ➔ Cài đặt</strong>.</span>
+                </div>
+            </div>
+
+            <!-- Cảnh Báo Quan Trọng -->
+            <div class="bg-gradient-to-r from-cyan-950/90 via-ocean-900/90 to-ocean-950/90 border-2 border-cyan-400/60 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-3 shadow-xl">
+                <span class="text-2xl shrink-0">⚠️</span>
+                <div class="text-xs text-gray-200 leading-relaxed">
+                    <strong class="text-cyan-glow text-sm block mb-1">ĐIỀU KIỆN TIÊN QUYẾT ĐỂ CÓ GOLD (BẮT BUỘC):</strong>
+                    Sau khi cài Module hoặc Config, bạn bắt buộc phải làm <strong>Bước 3 (Bật HTTPS Giải mã)</strong> và <strong>Bước 6 (Tin cậy chứng chỉ CA trong Cài đặt iPhone)</strong> thì app Locket mới mở khóa tính năng Gold! Nếu thiếu bước này, app Locket sẽ không thể nhận diện gói VIP.
+                </div>
             </div>
         </section>
 
