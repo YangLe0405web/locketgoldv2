@@ -61,4 +61,13 @@ obj.subscriber.entitlements["Gold"] = entitlementData;
 obj.subscriber.entitlements["pro"] = entitlementData;
 obj.subscriber.entitlements["vip"] = entitlementData;
 
+// Gửi thông báo đẩy iOS chúc mừng và cảm ơn từ GiangDev
+if (typeof $notification !== "undefined") {
+  $notification.post(
+    "🎉 GiangDev - Locket Gold VIP",
+    "Kích hoạt Gold + Full Filter thành công!",
+    "Cảm ơn bạn đã nâng cấp dịch vụ của GiangDev. Chúc bạn có trải nghiệm tuyệt vời! (t.me/Giangdev_it)"
+  );
+}
+
 $done({ body: JSON.stringify(obj) });
