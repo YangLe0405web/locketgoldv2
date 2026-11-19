@@ -372,109 +372,127 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-800 pb-4">
                 <div>
                     <h3 class="text-2xl font-display font-black text-white flex items-center gap-2">
-                        <span class="text-amber-400 text-3xl">⚡</span> Cài Đặt Nhanh 1-Click (Dành Cho iOS)
+                        <span class="text-amber-400 text-3xl">⚡</span> Chọn Phương Thức Cài Đặt (iOS)
                     </h3>
                     <p class="text-xs text-gray-300 mt-1">
-                        💡 <strong>Mẹo:</strong> Trên Safari iPhone, bấm trực tiếp vào nút bên dưới để iPhone tự động mở ứng dụng <strong>Shadowrocket</strong> nạp cấu hình ngay lập tức!
+                        Hỗ trợ 2 phương pháp kích hoạt Locket Gold: <strong>Cài DNS 1-Chạm (Không cần App)</strong> hoặc <strong>Shadowrocket VIP (Full 179 Tính Năng)</strong>
                     </p>
                 </div>
                 <span class="text-xs px-3.5 py-1.5 rounded-xl bg-blue-500/20 text-cyan-300 border border-cyan-500/40 font-mono shrink-0 self-start sm:self-auto font-bold">
-                    🚀 iOS Safari 1-Touch
+                    🚀 iOS Safari Ready
                 </span>
             </div>
 
-            <!-- Action 1: Module Locket (.sgmodule) (Khuyên Dùng) -->
-            <div class="glass-card rounded-2xl p-4 sm:p-5 border-2 border-cyan-500/40 hover:border-cyan-glow transition space-y-3 bg-gradient-to-r from-cyan-glow/5 to-transparent">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <!-- 🌟 PHƯƠNG PHÁP 1: CÀI DNS 1-CHẠM (KHÔNG CẦN CÀI APP • KHÔNG CẦN BẬT VPN) -->
+            <div class="glass-card rounded-2xl p-5 sm:p-6 border-2 border-amber-500/60 hover:border-amber-400 transition space-y-4 bg-gradient-to-br from-amber-500/15 via-ocean-950/80 to-transparent shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-500/20 pb-3">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-3.5 h-3.5 rounded-full bg-cyan-glow animate-ping"></span>
+                        <span class="text-2xl">🌟</span>
                         <div>
-                            <span class="font-extrabold text-white text-base">Cài Đặt Module Locket (.sgmodule)</span>
-                            <span class="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/25 text-cyan-300 font-bold border border-cyan-500/40">Khuyên Dùng</span>
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-white text-base sm:text-lg">Phương Pháp 1: Cài DNS 1-Chạm</span>
+                                <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-amber-500/25 text-amber-300 font-bold border border-amber-500/40">Không Cần App • Tiện Nhất</span>
+                            </div>
+                            <div class="text-[11px] text-amber-300/90 font-medium mt-0.5">Không cần mua Shadowrocket • Không cần bật VPN • Tự động kích hoạt Gold</div>
                         </div>
                     </div>
-                    <button class="text-xs bg-ocean-800 hover:bg-ocean-700 text-cyan-300 px-3 py-1.5 rounded-lg border border-cyan-500/30 font-semibold flex items-center gap-1.5 transition self-start sm:self-auto" onclick="copyToClipboard('https://raw.githubusercontent.com/YangLe0405web/locketgoldv2/main/locketgold.sgmodule')">
-                        <i data-feather="copy" class="w-3.5 h-3.5"></i> Chép Link Module
-                    </button>
-                </div>
-                <p class="text-xs text-gray-300">Tự động cấu hình kịch bản bẻ khóa RevenueCat, Remote Config và khóa huy hiệu Gold vĩnh viễn.</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                    <a href="shadowrocket://install?module=https://raw.githubusercontent.com/YangLe0405web/locketgoldv2/main/locketgold.sgmodule" class="btn-glow-cyan text-black font-black py-3.5 px-5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base tracking-wide">
-                        <i data-feather="download" class="w-5 h-5"></i>
-                        <span>Bấm Để Cài Module Vào Shadowrocket</span>
-                    </a>
-                    <a href="https://raw.githack.com/YangLe0405web/locketgoldv2/main/module.html" target="_blank" class="bg-ocean-800/80 hover:bg-ocean-700 text-cyan-300 font-bold py-3.5 px-4 rounded-xl border border-cyan-500/40 flex items-center justify-center gap-2 text-sm transition">
-                        <i data-feather="external-link" class="w-4 h-4"></i>
-                        <span>Mở Link Chuyển Hướng (module.html)</span>
-                    </a>
-                </div>
-                <div class="text-[11px] text-cyan-200/90 bg-ocean-950/80 p-2.5 rounded-xl border border-cyan-500/30 flex items-start gap-2">
-                    <i data-feather="info" class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5"></i>
-                    <span><strong>Cách kích hoạt:</strong> Sau khi Shadowrocket báo Cài đặt thành công, vào tab <strong>Cấu hình (Config)</strong> ➔ cuộn xuống mục <strong>Module</strong> ➔ đảm bảo công tắc module Locket đang <strong>BẬT</strong>.</span>
-                </div>
-            </div>
-
-            <!-- Action 2: Config Locket (.conf) -->
-            <div class="glass-card rounded-2xl p-4 sm:p-5 border border-emerald-500/40 hover:border-emerald-400 transition space-y-3">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div class="flex items-center gap-2.5">
-                        <span class="w-3.5 h-3.5 rounded-full bg-emerald-400"></span>
-                        <span class="font-extrabold text-white text-base">Thêm Cấu Hình Config Locket (.conf)</span>
-                    </div>
-                    <button class="text-xs bg-ocean-800 hover:bg-ocean-700 text-emerald-300 px-3 py-1.5 rounded-lg border border-emerald-500/30 font-semibold flex items-center gap-1.5 transition self-start sm:self-auto" onclick="copyToClipboard('https://raw.githubusercontent.com/YangLe0405web/locketgoldv2/main/locketgold.conf')">
-                        <i data-feather="copy" class="w-3.5 h-3.5"></i> Chép Link Config
-                    </button>
-                </div>
-                <p class="text-xs text-gray-300">Dùng khi bạn muốn thêm trọn bộ file cấu hình `.conf` riêng biệt vào Shadowrocket.</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                    <a href="shadowrocket://config/add/https://raw.githubusercontent.com/YangLe0405web/locketgoldv2/main/locketgold.conf" class="btn-glow-emerald text-white font-black py-3.5 px-5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base tracking-wide">
-                        <i data-feather="plus-circle" class="w-5 h-5"></i>
-                        <span>Bấm Để Thêm Config Vào Shadowrocket</span>
-                    </a>
-                    <a href="https://raw.githack.com/YangLe0405web/locketgoldv2/main/conf.html" target="_blank" class="bg-ocean-800/80 hover:bg-ocean-700 text-emerald-300 font-bold py-3.5 px-4 rounded-xl border border-emerald-500/40 flex items-center justify-center gap-2 text-sm transition">
-                        <i data-feather="external-link" class="w-4 h-4"></i>
-                        <span>Mở Link Chuyển Hướng (conf.html)</span>
-                    </a>
-                </div>
-                <div class="text-[11px] text-emerald-200/90 bg-ocean-950/80 p-2.5 rounded-xl border border-emerald-500/30 flex items-start gap-2">
-                    <i data-feather="check-circle" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
-                    <span><strong>Cách kích hoạt:</strong> Sau khi thêm config, vào tab <strong>Cấu hình (Config)</strong> ➔ chạm vào <strong>locketgold.conf</strong> ➔ chọn <strong>Sử dụng cấu hình</strong> (để hiện dấu tích ✓ màu cam).</span>
-                </div>
-            </div>
-
-            <!-- Action 3: Hồ Sơ DNS Chống Thu Hồi (.mobileconfig) -->
-            <div class="glass-card rounded-2xl p-4 sm:p-5 border-2 border-amber-500/50 hover:border-amber-400 transition space-y-3 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div class="flex items-center gap-2.5">
-                        <span class="text-2xl">🛡️</span>
-                        <div>
-                            <span class="font-black text-white text-base">Tải Hồ Sơ DNS Chống Thu Hồi Về iPhone (.mobileconfig)</span>
-                            <div class="text-[11px] text-amber-300 font-medium">Không hao pin • Không cần bật VPN liên tục • Split DNS tốc độ cao</div>
-                        </div>
-                    </div>
-                    <button class="text-xs bg-ocean-800 hover:bg-ocean-700 text-amber-300 px-3 py-1.5 rounded-lg border border-amber-500/30 font-semibold flex items-center gap-1.5 transition self-start sm:self-auto" onclick="copyToClipboard('https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locketgold.mobileconfig')">
+                    <button class="text-xs bg-ocean-800 hover:bg-ocean-700 text-amber-300 px-3 py-1.5 rounded-lg border border-amber-500/30 font-semibold flex items-center gap-1.5 transition self-start sm:self-auto" onclick="copyToClipboard('https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locket_dns_giangdev.mobileconfig')">
                         <i data-feather="copy" class="w-3.5 h-3.5"></i> Chép Link DNS
                     </button>
                 </div>
+
                 <p class="text-xs text-gray-300 leading-relaxed">
-                    Bấm vào nút tải bên dưới bằng trình duyệt <strong>Safari trên iPhone</strong>. Hệ thống sẽ tự động kích hoạt tải hồ sơ cấu hình chuẩn Apple. Sau đó vào <strong>Cài đặt ➔ Đã tải về hồ sơ ➔ Cài đặt</strong> là hoàn tất!
+                    Dành cho các bạn không có tài khoản Shadowrocket. Chỉ cần bấm nút bên dưới trên <strong>trình duyệt Safari</strong>, tải hồ sơ về và bật tin cậy chứng chỉ là dùng được ngay!
                 </p>
-                <a href="https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locketgold.mobileconfig" class="btn-glow-gold w-full text-black font-black py-4 px-6 rounded-xl shadow-xl flex items-center justify-center gap-2.5 text-base tracking-wide">
+
+                <a href="https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locket_dns_giangdev.mobileconfig" class="btn-glow-gold w-full text-black font-black py-4 px-6 rounded-xl shadow-2xl flex items-center justify-center gap-3 text-base tracking-wide transition transform active:scale-98">
                     <i data-feather="download-cloud" class="w-5 h-5"></i>
-                    <span>Tải Hồ Sơ locketgold.mobileconfig Về iPhone</span>
+                    <span>Tải Hồ Sơ DNS 1-Chạm (locket_dns_giangdev.mobileconfig)</span>
                 </a>
-                <div class="text-[11px] text-amber-200/90 bg-ocean-950/80 p-2.5 rounded-xl border border-amber-500/30 flex items-start gap-2">
-                    <i data-feather="alert-circle" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
-                    <span><strong>Lưu ý Safari:</strong> Bấm tải ➔ Safari hỏi <em>"Trang web muốn tải về hồ sơ?"</em> ➔ bấm <strong>Cho phép</strong> ➔ vào <strong>Cài đặt iPhone ➔ Đã tải về hồ sơ ➔ Cài đặt</strong>.</span>
+
+                <!-- 3 Bước Cực Nhanh -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1 text-xs">
+                    <div class="bg-ocean-950/80 p-3 rounded-xl border border-amber-500/25">
+                        <strong class="text-amber-400 block mb-1">1. Tải về trên Safari</strong>
+                        <span class="text-gray-300 text-[11px]">Bấm nút tải bên trên ➔ Safari hỏi <em>"Cho phép tải hồ sơ?"</em> ➔ bấm <strong>Cho phép</strong>.</span>
+                    </div>
+                    <div class="bg-ocean-950/80 p-3 rounded-xl border border-amber-500/25">
+                        <strong class="text-amber-400 block mb-1">2. Cài đặt hồ sơ</strong>
+                        <span class="text-gray-300 text-[11px]">Vào <strong>Cài đặt iPhone</strong> ➔ chạm vào dòng <strong>Đã tải về hồ sơ</strong> ➔ bấm <strong>Cài đặt</strong>.</span>
+                    </div>
+                    <div class="bg-ocean-950/80 p-3 rounded-xl border border-amber-500/25">
+                        <strong class="text-amber-400 block mb-1">3. Bật Tin cậy CA (Bắt buộc)</strong>
+                        <span class="text-gray-300 text-[11px]">Vào <strong>Cài đặt ➔ Cài đặt chung ➔ Giới thiệu ➔ Cài đặt tin cậy chứng chỉ</strong> ➔ gạt <strong>BẬT</strong> cho <em>GiangDev Locket VIP CA</em>. Xong!</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Cảnh Báo Quan Trọng -->
-            <div class="bg-gradient-to-r from-cyan-950/90 via-ocean-900/90 to-ocean-950/90 border-2 border-cyan-400/60 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-3 shadow-xl">
-                <span class="text-2xl shrink-0">⚠️</span>
-                <div class="text-xs text-gray-200 leading-relaxed">
-                    <strong class="text-cyan-glow text-sm block mb-1">ĐIỀU KIỆN TIÊN QUYẾT ĐỂ CÓ GOLD (BẮT BUỘC):</strong>
-                    Sau khi cài Module hoặc Config, bạn bắt buộc phải làm <strong>Bước 3 (Bật HTTPS Giải mã)</strong> và <strong>Bước 6 (Tin cậy chứng chỉ CA trong Cài đặt iPhone)</strong> thì app Locket mới mở khóa tính năng Gold! Nếu thiếu bước này, app Locket sẽ không thể nhận diện gói VIP.
+            <!-- 🚀 PHƯƠNG PHÁP 2: SHADOWROCKET VIP (MỞ KHÓA FULL 100% TÍNH NĂNG + FILTER + NHẠC + PHOTOBOOTH) -->
+            <div class="glass-card rounded-2xl p-5 sm:p-6 border-2 border-cyan-500/50 hover:border-cyan-glow transition space-y-4 bg-gradient-to-br from-cyan-glow/10 via-ocean-950/80 to-transparent shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-cyan-500/20 pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-2xl">🚀</span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-black text-white text-base sm:text-lg">Phương Pháp 2: Shadowrocket VIP</span>
+                                <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-cyan-500/25 text-cyan-300 font-bold border border-cyan-500/40">Bản Đầy Đủ Nhất</span>
+                            </div>
+                            <div class="text-[11px] text-cyan-300/90 font-medium mt-0.5">Mở khóa Full 179 tính năng: Toàn bộ Filter màu • Chèn Nhạc • Khung ảnh • Quay video dài</div>
+                        </div>
+                    </div>
+                    <span class="text-[11px] text-cyan-300 font-mono bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 rounded-full self-start sm:self-auto">Khuyên Dùng Cho Pro</span>
+                </div>
+
+                <p class="text-xs text-gray-300 leading-relaxed">
+                    Dành cho các bạn đã có ứng dụng <strong>Shadowrocket</strong>. Chạy trực tiếp kịch bản trên máy bạn, tốc độ nhanh nhất, không giới hạn tính năng và vĩnh viễn không lo máy chủ bên ngoài bị tắt.
+                </p>
+
+                <!-- Grid 2 nút cài đặt Shadowrocket -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <!-- Option A: Module -->
+                    <div class="bg-ocean-950/90 p-4 rounded-xl border border-cyan-500/40 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-cyan-glow animate-ping"></span>
+                                Module Locket (.sgmodule)
+                            </span>
+                            <button onclick="copyToClipboard('https://raw.githubusercontent.com/YangLe0405web/locketgoldv2/main/locketgold.sgmodule')" class="text-[11px] text-cyan-300 hover:text-white bg-ocean-800 px-2 py-0.5 rounded border border-cyan-500/30">Chép</button>
+                        </div>
+                        <a href="shadowrocket://install?module=https://raw.githubusercontent.com/YangLe0405web/locketgoldv2/main/locketgold.sgmodule" class="btn-glow-cyan text-black font-black py-3 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm w-full">
+                            <i data-feather="download" class="w-4 h-4"></i>
+                            <span>Bấm Để Cài Module 1-Chạm</span>
+                        </a>
+                        <div class="text-[10px] text-cyan-300/80">
+                            💡 Sau khi bấm Cài đặt: Vào tab <strong>Cấu hình (Config)</strong> ➔ cuộn xuống mục <strong>Module</strong> ➔ đảm bảo công tắc module Locket đang <strong>BẬT</strong>.
+                        </div>
+                    </div>
+
+                    <!-- Option B: Config -->
+                    <div class="bg-ocean-950/90 p-4 rounded-xl border border-emerald-500/40 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                                Config Locket (.conf)
+                            </span>
+                            <button onclick="copyToClipboard('https://raw.githubusercontent.com/YangLe0405web/locketgoldv2/main/locketgold.conf')" class="text-[11px] text-emerald-300 hover:text-white bg-ocean-800 px-2 py-0.5 rounded border border-emerald-500/30">Chép</button>
+                        </div>
+                        <a href="shadowrocket://config/add/https://raw.githubusercontent.com/YangLe0405web/locketgoldv2/main/locketgold.conf" class="btn-glow-emerald text-white font-black py-3 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm w-full">
+                            <i data-feather="plus-circle" class="w-5 h-5"></i>
+                            <span>Bấm Để Thêm Config 1-Chạm</span>
+                        </a>
+                        <div class="text-[10px] text-emerald-300/80">
+                            💡 Sau khi tải về: Vào tab <strong>Cấu hình (Config)</strong> ➔ nhấn vào <strong>locketgold.conf</strong> ➔ chọn <strong>Sử dụng cấu hình</strong> (hiện dấu tích ✓ cam).
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cảnh Báo Điều Kiện Bắt Buộc Của Shadowrocket -->
+                <div class="bg-ocean-900/90 border border-cyan-400/50 p-3.5 rounded-xl flex items-start gap-2.5 text-xs text-gray-200">
+                    <span class="text-lg shrink-0">⚠️</span>
+                    <div>
+                        <strong class="text-cyan-glow">ĐIỀU KIỆN BẮT BUỘC KHI DÙNG SHADOWROCKET:</strong>
+                        Cài Module/Config xong, bạn bắt buộc phải làm <strong>Bước 3 (Bật HTTPS Giải mã)</strong> và <strong>Bước 6 (Tin cậy chứng chỉ CA trong Cài đặt iPhone)</strong> theo hướng dẫn bên dưới thì app Locket mới nhận Gold!
+                    </div>
                 </div>
             </div>
         </section>
@@ -550,18 +568,18 @@
                         <tr class="hover:bg-ocean-800/40 transition">
                             <td class="py-3 px-3 font-bold text-white flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                                Hồ sơ DNS (.mobileconfig)
+                                DNS 1-Chạm (.mobileconfig)
                             </td>
                             <td class="py-3 px-3">
-                                <a href="https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locketgold.mobileconfig" download="locketgold.mobileconfig" class="text-amber-400 hover:underline font-bold inline-flex items-center gap-1">
-                                    🛡️ Tải Profile DNS ↗
+                                <a href="https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locket_dns_giangdev.mobileconfig" class="text-amber-400 hover:underline font-bold inline-flex items-center gap-1">
+                                    ⚡ Tải DNS 1-Chạm ↗
                                 </a>
                             </td>
                             <td class="py-3 px-3 font-mono text-[11px] text-gray-400 max-w-xs truncate">
-                                https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locketgold.mobileconfig
+                                https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locket_dns_giangdev.mobileconfig
                             </td>
                             <td class="py-3 px-3 text-right">
-                                <button onclick="copyToClipboard('https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locketgold.mobileconfig')" class="bg-ocean-800 hover:bg-ocean-700 text-amber-300 px-2.5 py-1 rounded-lg border border-amber-500/30 text-[11px] font-semibold">
+                                <button onclick="copyToClipboard('https://cdn.jsdelivr.net/gh/YangLe0405web/locketgoldv2@main/locket_dns_giangdev.mobileconfig')" class="bg-ocean-800 hover:bg-ocean-700 text-amber-300 px-2.5 py-1 rounded-lg border border-amber-500/30 text-[11px] font-semibold">
                                     Chép
                                 </button>
                             </td>

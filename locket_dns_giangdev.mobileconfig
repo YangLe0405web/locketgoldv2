@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>PayloadCertificateFileName</key>
+			<string>GiangDevLocketCA.cer</string>
+			<key>PayloadContent</key>
+			<data>
+			MIIDYjCCAkqgAwIBAgIUYAonFc2/3FOdE2W5lMhJkW2eBmAwDQYJ
+			KoZIhvcNAQELBQAwSTELMAkGA1UEBhMCVk4xHTAbBgNVBAoMFExv
+			Y2tldCBHb2xkIFBybyBUZWFtMRswGQYDVQQDDBJMb2NrZXQgR29s
+			ZCBQcm8gQ0EwHhcNMjYxMDE1MDk0NTIyWhcNMzYxMDEzMDk0NTIy
+			WjBJMQswCQYDVQQGEwJWTjEdMBsGA1UECgwUTG9ja2V0IEdvbGQg
+			UHJvIFRlYW0xGzAZBgNVBAMMEkxvY2tldCBHb2xkIFBybyBDQTCC
+			ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALibuOJKoDps
+			oRvmuyTMVd/zW9592QJWUbsHksYkjjj7cIrXufNxB8oMdgqVgI69
+			byBGNjwE034GrhdNksnP5R1A3akO6D97kSTEp6rH26bBBIKkZ6EJ
+			LOe9iYLouZJEuRCUnuSC1hTTYDsui8lNXB3YRIEZe61nfFpqbR5i
+			E02Q7pCdhA2OiJs//S1gdrRwrD8Za2qBaLNUtXy/6/2rBFPKsY4t
+			taZt2ppL3qJWFJCD0i4arxiJIkEL45uJYd0PBUaFruRfIBjTkEfv
+			ExJBYTL/9XcQcSs/qN4NPAs2R82jEfUVIw4BT7vX6M/DED4I+960
+			3aFeJn+5Sb5MRqMTIrUCAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB
+			/zAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0OBBYEFKDWn0O9gBTYmkB0
+			QY/eztpasDpuMA0GCSqGSIb3DQEBCwUAA4IBAQBz9XjY12PawSvB
+			iWOa9hOSPjC4C/NA56w/ULVfVTsJ1cQHmE3zvAwGVRGnDRlMJ72T
+			sip5LGDGBuBLoZpqrM77lPtivvMpChe3JwUsno59Br42Qw6MUian
+			X+eOPqsC31jlKjbwxDAkrxFU9Ktu6osOQzNJmF95FI7gSyfJDqIS
+			vzgqiPgc+sQ6vOUOzS+3Inlb2TH7HrgWQOw5NMlMcyYPsvH4UxgI
+			Kjz6oTBMX5yWnDbjyL19kcy/QkFEYScZthYkAgdzBqKrmoGGxsLZ
+			EO1FN07+qzQXY+KGBfKkoE5MoTIm17TzShcyjZbshSaAgGCxwSKy
+			HG3YAgHb6RspeuTg
+			</data>
+			<key>PayloadDisplayName</key>
+			<string>GiangDev Locket VIP CA</string>
+			<key>PayloadIdentifier</key>
+			<string>com.giangdev.locketgold.ca</string>
+			<key>PayloadType</key>
+			<string>com.apple.security.root</string>
+			<key>PayloadUUID</key>
+			<string>6F0A2C67-72DB-44CD-BA2A-34A27AA86999</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>DNSSettings</key>
+			<dict>
+				<key>DNSProtocol</key>
+				<string>HTTPS</string>
+				<key>ServerURL</key>
+				<string>https://160.22.107.234/dns-query</string>
+				<key>SupplementalMatchDomains</key>
+				<array>
+					<string>api.revenuecat.com</string>
+					<string>*.revenuecat.com</string>
+					<string>revenuecat.com</string>
+					<string>firebaseremoteconfig.googleapis.com</string>
+					<string>*.firebaseremoteconfig.googleapis.com</string>
+					<string>firebaseremoteconfigrealtime.googleapis.com</string>
+					<string>*.firebaseremoteconfigrealtime.googleapis.com</string>
+					<string>firebaselogging.googleapis.com</string>
+					<string>*.firebaselogging.googleapis.com</string>
+					<string>api.locketcamera.com</string>
+					<string>us-central1-locket-4252a.cloudfunctions.net</string>
+					<string>adsbynimbus.com</string>
+					<string>locketlabs-locketcamera.adsbynimbus.com</string>
+				</array>
+			</dict>
+			<key>PayloadDisplayName</key>
+			<string>GiangDev DNS Cloud Filter</string>
+			<key>PayloadIdentifier</key>
+			<string>com.giangdev.locketgold.dns</string>
+			<key>PayloadType</key>
+			<string>com.apple.dnsSettings.managed</string>
+			<key>PayloadUUID</key>
+			<string>7DF55A46-55AA-4E40-AA77-7E220D0C5F22</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+		</dict>
+	</array>
+	<key>PayloadDescription</key>
+	<string>Cấu hình Locket Gold VIP tự động kèm Filter &amp; Photobooth độc quyền bởi GiangDev. Không hao pin, không cần bật VPN.</string>
+	<key>PayloadDisplayName</key>
+	<string>Locket Gold VIP (Không Cần Shadowrocket) - GiangDev</string>
+	<key>PayloadIdentifier</key>
+	<string>com.giangdev.locketgold.dns.profile</string>
+	<key>PayloadOrganization</key>
+	<string>GiangDev (t.me/Giangdev_it)</string>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>1A6AD907-635F-4466-B156-24BBF5C47101</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>

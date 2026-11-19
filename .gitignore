@@ -20,3 +20,5 @@ scratch/
 .idea/
 __pycache__/
 *.pyc
+
+dns2/
